@@ -67,7 +67,7 @@ public class TaskStatus {
         }
     }
 
-    int getStatus() {
+    public int getStatus() {
         return status;
     }
 
@@ -78,40 +78,40 @@ public class TaskStatus {
      * @return возвращает объект
      */
 
-    TaskStatus setStatus(int status) {
-            this.status = status;
+    public TaskStatus setStatus(int status) {
+        this.status = status;
         return this;
     }
 
-    String getMessage() {
+    public String getMessage() {
         return message;
     }
 
-    void setMessage(String message) {
+    public void setMessage(String message) {
         this.message = message;
     }
 
-    String getKey() {
+    public String getKey() {
         return key;
     }
 
-    void setKey(String key) {
+    public void setKey(String key) {
         this.key = key;
     }
 
-    long getMax() {
+    public long getMax() {
         return max;
     }
 
-    void setMax(long max) {
+    public void setMax(long max) {
         this.max = max;
     }
 
-    long getCurrent_progress() {
+    public long getCurrent_progress() {
         return current_progress;
     }
 
-    void setCurrent_progress(long current_progress) {
+    public void setCurrent_progress(long current_progress) {
         this.current_progress = current_progress;
     }
 

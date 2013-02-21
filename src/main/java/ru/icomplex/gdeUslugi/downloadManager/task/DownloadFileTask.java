@@ -23,6 +23,7 @@ public class DownloadFileTask extends Task {
     private String md5;
     private long size;
     private long downloaded; // number of bytes downloaded
+    private String filePath;
 
 
     public DownloadFileTask(StringResourceManager resourceManager, String tag, String path, String url, String md5, String size) {
@@ -264,7 +265,14 @@ public class DownloadFileTask extends Task {
     }
 
     private String getFilePath(String path, String fileName) {
-        return path + "/" + fileName;
+        if (filePath == null || filePath.isEmpty()) {
+            filePath = path + "/" + fileName;
+        }
+        return filePath;
+    }
+
+    public String getFilePath() {
+        return filePath;
     }
 
     @Override

@@ -1,5 +1,6 @@
 package ru.icomplex.gdeUslugi.downloadManager.manager;
 
+import ru.icomplex.gdeUslugi.downloadManager.task.DecompressTask;
 import ru.icomplex.gdeUslugi.downloadManager.task.DownloadFileTask;
 import ru.icomplex.gdeUslugi.downloadManager.task.Task;
 
@@ -39,30 +40,38 @@ public class DownloadManager implements Observer {
             task.createTreadTask();
 
 
-            try {
-                Thread.sleep(2000);
-                System.out.println("change status pause");
-                task.pause();
-
-                Thread.sleep(2000);
-                System.out.println("change status resume");
-                task.resume();
-
-                Thread.sleep(2000);
-                System.out.println("change status cancel");
-                task.cancel();
-
-                Thread.sleep(2000);
-                System.out.println("change status resume");
-                task.resume();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+//            try {
+//                Thread.sleep(2000);
+//                System.out.println("change status pause");
+//                task.pause();
+//
+//                Thread.sleep(2000);
+//                System.out.println("change status resume");
+//                task.resume();
+//
+//                Thread.sleep(2000);
+//                System.out.println("change status cancel");
+//                task.cancel();
+//
+//                Thread.sleep(2000);
+//                System.out.println("change status resume");
+//                task.resume();
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
         }
     }
 
     @Override
     public void update(Observable observable, Object o) {
         System.out.println(o);
+        if (observable instanceof DownloadFileTask) {
+            DownloadFileTask downloadFileTask = (DownloadFileTask) observable;
+            String tag = downloadFileTask.getTaskStatus().getKey();
+            Task unzipTask = new DecompressTask(new StringResourceManager(), "unzip", downloadFileTask.getFilePath(), "./");
+            unzipTask.addObserver(this);
+            taskMap.put("unzip", unzipTask);
+            unzipTask.createTreadTask();
+        }
     }
 }

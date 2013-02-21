@@ -1,6 +1,7 @@
 package ru.icomplex.gdeUslugi.downloadManager.task;
 
 import ru.icomplex.gdeUslugi.downloadManager.manager.StringResourceManager;
+import ru.icomplex.gdeUslugi.downloadManager.utilities.FolderDelelor;
 
 import java.io.*;
 import java.util.Enumeration;
@@ -8,6 +9,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 public class DecompressTask extends Task {
+    private static final int MAX_BUFFER_SIZE = 2048;
     private String zipFile;
     private String location;
 
@@ -18,45 +20,83 @@ public class DecompressTask extends Task {
         this.location = location;
     }
 
-    private void extractFolder(String zipFile, String location)
+    private TaskStatus extractFolder(String zipFile, String location)
             throws IOException {
-        int BUFFER = 2048;
+        if (zipFile == null || zipFile.isEmpty()) {
+            taskStatus.setStatus(TaskStatus.STATUS_ERROR);
+            taskStatus.setMessage(resourceManager.getZipFilePaphIsEmpty());
+            return taskStatus;
+        }
+        if (location == null || location.isEmpty()) {
+            taskStatus.setStatus(TaskStatus.STATUS_ERROR);
+            taskStatus.setMessage(resourceManager.getSpecifiedLocalPathIsIncorrect());
+            return taskStatus;
+        }
+
         File file = new File(zipFile);
 
-        ZipFile zip = new ZipFile(file);
+        ZipFile zip = null;
+        try {
+            zip = new ZipFile(file);
+        } catch (IOException e) {
+            taskStatus.setStatus(TaskStatus.STATUS_ERROR);
+            taskStatus.setMessage(resourceManager.getWriteError());
+            e.printStackTrace();
+            return taskStatus;
+        }
+
         String newPath = location;
 
         new File(newPath).mkdir();
         Enumeration zipFileEntries = zip.entries();
-        int total = new ZipFile(zipFile).size();
-//        downloader.unzipStart(key, " [" + String.valueOf(total) + " files]");
+
+        int total = zip.size();
+        taskStatus.setStatus(TaskStatus.STATUS_START);
+        taskStatus.setMax(total);
+        publishProgress(taskStatus);
         // Process each entry
         int current = 0;
         while (zipFileEntries.hasMoreElements()) {
+            if (taskStatus.getStatus() == TaskStatus.STATUS_CANCELED || taskStatus.getStatus() == TaskStatus.STATUS_PAUSED || taskStatus.getStatus() == TaskStatus.STATUS_ERROR) {
+                return taskStatus;
+            }
             // grab a zip file entry
             ZipEntry entry = (ZipEntry) zipFileEntries.nextElement();
             String currentEntry = entry.getName();
             File destFile = new File(newPath, currentEntry);
-            // destFile = new File(newPath, destFile.getName());
-            File destinationParent = destFile.getParentFile();
 
             // create the parent directory structure if needed
-            destinationParent.mkdirs();
+            destFile.getParentFile().mkdirs();
 
             if (!entry.isDirectory()) {
-                BufferedInputStream is = new BufferedInputStream(
-                        zip.getInputStream(entry));
+                BufferedInputStream is = null;
+                try {
+                    is = new BufferedInputStream(
+                            zip.getInputStream(entry));
+                } catch (IOException e) {
+                    taskStatus.setStatus(TaskStatus.STATUS_ERROR);
+                    taskStatus.setMessage(resourceManager.getWriteError());
+                    e.printStackTrace();
+                    return taskStatus;
+                }
                 int currentByte;
                 // establish buffer for writing file
-                byte data[] = new byte[BUFFER];
+                byte data[] = new byte[MAX_BUFFER_SIZE];
 
                 // write the current file to disk
-                FileOutputStream fos = new FileOutputStream(destFile);
+                FileOutputStream fos = null;
+                try {
+                    fos = new FileOutputStream(destFile);
+                } catch (FileNotFoundException e) {
+                    taskStatus.setStatus(TaskStatus.STATUS_ERROR);
+                    taskStatus.setMessage(resourceManager.getWriteError());
+                    e.printStackTrace();
+                }
                 BufferedOutputStream dest = new BufferedOutputStream(fos,
-                        BUFFER);
+                        MAX_BUFFER_SIZE);
 
                 // read and write until last byte is encountered
-                while ((currentByte = is.read(data, 0, BUFFER)) != -1) {
+                while ((currentByte = is.read(data, 0, MAX_BUFFER_SIZE)) != -1) {
                     dest.write(data, 0, currentByte);
                 }
                 dest.flush();
@@ -64,29 +104,44 @@ public class DecompressTask extends Task {
                 is.close();
             }
 
-            if (currentEntry.endsWith(".zip")) {
-                // found a zip file, try to open
-                extractFolder(destFile.getAbsolutePath(),
-                        zipFile.substring(0, zipFile.length() - 4));
-            }
-            current++;
-            // Log.d(tag, "unzipped: " + String.valueOf(current));
+//            if (currentEntry.endsWith(".zip")) {
+//                // found a zip file, try to open
+//                extractFolder(destFile.getAbsolutePath(),
+//                        zipFile.substring(0, zipFile.length() - 4));
+//            }
+
+            taskStatus.setStatus(TaskStatus.STATUS_WORKING);
+            taskStatus.setCurrent_progress(current++);
             publishProgress(taskStatus);
         }
+        taskStatus.setStatus(TaskStatus.STATUS_FINISH);
+        return taskStatus;
     }
 
     @Override
     TaskStatus heavyTask() {
-        try {
-            extractFolder(zipFile, location);
+        if (zipFile == null || zipFile.isEmpty()) {
+            taskStatus.setStatus(TaskStatus.STATUS_ERROR);
+            taskStatus.setMessage(resourceManager.getZipFilePaphIsEmpty());
             return taskStatus;
-        } catch (Exception e) {
-            e.printStackTrace();
-//            downloader.unzipCrush(key,
-//                    e.getMessage());
-            // Log.e("Decompress", "unzip", e);
         }
-        return null;
+        if (location == null || location.isEmpty()) {
+            taskStatus.setStatus(TaskStatus.STATUS_ERROR);
+            taskStatus.setMessage(resourceManager.getZipFilePaphIsEmpty());
+            return taskStatus;
+        }
+        try {
+            return extractFolder(zipFile, location);
+        } catch (Exception e) {
+            taskStatus.setStatus(TaskStatus.STATUS_ERROR);
+            taskStatus.setMessage(resourceManager.getErrorUnzipping());
+
+            //удалить недораспакованное
+            FolderDelelor.deleteFolderRecursively(zipFile);
+
+            e.printStackTrace();
+            return taskStatus;
+        }
     }
 
     @Override

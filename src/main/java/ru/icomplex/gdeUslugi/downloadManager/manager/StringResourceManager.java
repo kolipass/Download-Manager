@@ -15,6 +15,9 @@ public class StringResourceManager {
     public String getErrorResponse() {
         return "Неполадки на сервере";
     }
+    public String getErrorUnzipping() {
+        return "Произошла ошибка разпаковки. Попробуйте снова";
+    }
 
     public String getCorrectFileExist() {
         return "Запрашиваемый файл уже загружен";
@@ -28,5 +31,13 @@ public class StringResourceManager {
     }
     public String getFileIsCorrupted() {
         return "Загружаемый файл поврежден, загрузка будет удлена. Попробуйте снова";
+    }
+
+    public String getZipFilePaphIsEmpty() {
+        return "Путь к зип файлу не корректен: ";
+    }
+
+    public String getSpecifiedLocalPathIsIncorrect() {
+        return "Указанный путь не корректен";
     }
 }

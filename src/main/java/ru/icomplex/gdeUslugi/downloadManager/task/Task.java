@@ -73,9 +73,14 @@ public abstract class Task extends Observable implements Runnable {
             }
     }
 
+    public TaskStatus getTaskStatus() {
+        return taskStatus;
+    }
+
     /**
      * Внутренняя реализация интерфейса Runnable. Для запуска таска использовать createTreadTask()!
      */
+
 
     public final void run() {
         onPostExecute(heavyTask());
