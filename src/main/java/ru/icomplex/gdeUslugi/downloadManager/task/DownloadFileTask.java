@@ -11,6 +11,11 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.security.NoSuchAlgorithmException;
 
+/**
+ * Основной класс загрузки данных
+ * Поддерживается продолжение загрузки, вертификация файла по мд5 и заранее заданному точному размеру.
+ */
+
 public class DownloadFileTask extends Task {
     private static final int MAX_BUFFER_SIZE = 1024;
     private String path;
@@ -25,7 +30,7 @@ public class DownloadFileTask extends Task {
         this.taskStatus = new TaskStatus(tag);
         this.path = path;
         this.urlString = url;
-        this.md5 = md5;
+        this.md5 = md5 != null && !md5.isEmpty() ? md5 : "";
         this.size = size != null && !size.isEmpty() ? Long.parseLong(size) : 0;
 
     }
@@ -34,6 +39,13 @@ public class DownloadFileTask extends Task {
         return size / 1024;
     }
 
+    /**
+     * Проверка на корректность имеющегося файла. За одно, если  файл есть, заполняется позиция начала загрузки.
+     *
+     * @param path     папка, где искать файл
+     * @param fileName название папки
+     * @return true если данный файл совпадает по хэшу с запрашиваым, иначе false. false так же вернется если файла нет
+     */
     private boolean existingFileIsCorrect(String path, String fileName) {
         File dir = new File(path);
         if (dir.mkdirs() || dir.isDirectory()) {
@@ -46,7 +58,8 @@ public class DownloadFileTask extends Task {
                 try {
                     localfileStream = new FileInputStream(getFilePath(path, fileName));
 
-                    if (md5.equals(MD5.Hashing(localfileStream))) {  //                            + " уже загружен");
+                    if (!md5.isEmpty() && md5.equals(MD5.Hashing(localfileStream))) {
+                        //уже загружен
                         localfileStream.close();
 
                         return true;

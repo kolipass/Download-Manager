@@ -17,9 +17,6 @@ import java.util.Observer;
 public class DownloadManager implements Observer {
     Map<String, Task> taskMap;
 
-    //listeners
-    //status
-
 
     public DownloadManager() {
         this.taskMap = new HashMap<>();

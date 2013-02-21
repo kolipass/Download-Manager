@@ -1,30 +1,21 @@
 package ru.icomplex.gdeUslugi.downloadManager.task;
 
+import ru.icomplex.gdeUslugi.downloadManager.manager.StringResourceManager;
+
 import java.io.*;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 public class DecompressTask extends Task {
-
     private String zipFile;
     private String location;
-    private String key;
 
-
-    public DecompressTask(String key, String zipFile, String location) {
-        this.key = key;
+    public DecompressTask(StringResourceManager resourceManager, String key, String zipFile, String location) {
+        this.resourceManager = resourceManager;
         this.zipFile = zipFile;
+        this.taskStatus = new TaskStatus(key);
         this.location = location;
-        _dirChecker("");
-    }
-
-    private void _dirChecker(String dir) {
-        File f = new File(location + dir);
-
-        if (f.isDirectory()) {
-            f.mkdirs();
-        }
     }
 
     private void extractFolder(String zipFile, String location)
@@ -80,26 +71,16 @@ public class DecompressTask extends Task {
             }
             current++;
             // Log.d(tag, "unzipped: " + String.valueOf(current));
-            publishProgress(current);
+            publishProgress(taskStatus);
         }
-    }
-
-    protected void publishProgress(int progress) {
-//        downloader.progressUpdate(key, progress);
-    }
-
-    @Override
-    void publishProgress(TaskStatus taskStatus) {
-        //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
     TaskStatus heavyTask() {
         try {
             extractFolder(zipFile, location);
-//            return zipFile;
-        } catch (Exception e)
-        {
+            return taskStatus;
+        } catch (Exception e) {
             e.printStackTrace();
 //            downloader.unzipCrush(key,
 //                    e.getMessage());
@@ -109,18 +90,14 @@ public class DecompressTask extends Task {
     }
 
     @Override
-    void onPostExecute(TaskStatus taskStatus) {
-        //To change body of implemented methods use File | Settings | File Templates.
+    void publishProgress(TaskStatus taskStatus) {
+        setChanged();
+        notifyObservers(taskStatus);
     }
 
-    protected void onPostExecute(String unused) {
-//        Log.d(tag, "onPostExecute" + String.valueOf(unused));
-        if (unused != null) {
-//            downloader.unzipComplete(key, unused);
-        }
-    }
-
-    public void broke() {
-//        Log.d(tag, "cancel " + this.setCancel(true));
+    @Override
+    protected void onPostExecute(TaskStatus unused) {
+        setChanged();
+        notifyObservers(unused);
     }
 }

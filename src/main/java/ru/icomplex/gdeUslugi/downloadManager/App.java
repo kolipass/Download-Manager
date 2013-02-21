@@ -2,9 +2,6 @@ package ru.icomplex.gdeUslugi.downloadManager;
 
 import ru.icomplex.gdeUslugi.downloadManager.manager.DownloadManager;
 
-/**
- * Hello world!
- */
 public class App {
     public static void main(String[] args) {
         String url = "http://gdekvartira.su/download/abakan_small_1361339108.zip";
