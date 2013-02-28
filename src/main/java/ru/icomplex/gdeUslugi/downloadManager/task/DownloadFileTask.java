@@ -22,17 +22,18 @@ public class DownloadFileTask extends Task {
     private String urlString;
     private String md5;
     private long size;
-    private long downloaded; // number of bytes downloaded
+    // number of bytes downloaded
+    private long downloaded;
     private String filePath;
 
 
-    public DownloadFileTask(StringResourceManager resourceManager, String tag, String path, String url, String md5, String size) {
+    public DownloadFileTask(StringResourceManager resourceManager, String tag, String path, String url, String md5, Long size) {
         this.resourceManager = resourceManager;
         this.taskStatus = new TaskStatus(tag);
         this.path = path;
         this.urlString = url;
         this.md5 = md5 != null && !md5.isEmpty() ? md5 : "";
-        this.size = size != null && !size.isEmpty() ? Long.parseLong(size) : 0;
+        this.size = size;
 
     }
 
@@ -55,13 +56,13 @@ public class DownloadFileTask extends Task {
             System.out.println(localFile.getAbsolutePath());
             if (localFile.exists()) {
 
-                InputStream localfileStream = null;
+                InputStream localFileStream;
                 try {
-                    localfileStream = new FileInputStream(getFilePath(path, fileName));
+                    localFileStream = new FileInputStream(getFilePath(path, fileName));
 
-                    if (!md5.isEmpty() && md5.equals(MD5.Hashing(localfileStream))) {
+                    if (!md5.isEmpty() && md5.equals(MD5.Hashing(localFileStream))) {
                         //уже загружен
-                        localfileStream.close();
+                        localFileStream.close();
 
                         return true;
                     } else {
@@ -88,9 +89,7 @@ public class DownloadFileTask extends Task {
 
     }
 
-    private String getFileName(String url) {
-        return url.substring(url.lastIndexOf('/') + 1);
-    }
+
 
     @Override
     protected TaskStatus heavyTask() {
@@ -100,7 +99,7 @@ public class DownloadFileTask extends Task {
             url = new URL(urlString);
         } catch (MalformedURLException e) {
             taskStatus.setStatus(TaskStatus.STATUS_ERROR);
-            taskStatus.setMessage(resourceManager.getParseUrlError());
+            taskStatus.setMessage(resourceManager.getParseUrlError() + urlString);
             e.printStackTrace();
             return taskStatus;
         }
@@ -271,21 +270,12 @@ public class DownloadFileTask extends Task {
         return filePath;
     }
 
+    /**
+     * Путь до файла
+     * @return Возвращает строку-путь до файла (не гарантирует абсолютность)
+     */
+
     public String getFilePath() {
         return filePath;
     }
-
-    @Override
-    void publishProgress(TaskStatus taskStatus) {
-        setChanged();
-        notifyObservers(taskStatus);
-    }
-
-    @Override
-    protected void onPostExecute(TaskStatus unused) {
-        setChanged();
-        notifyObservers(unused);
-    }
-
-
 }

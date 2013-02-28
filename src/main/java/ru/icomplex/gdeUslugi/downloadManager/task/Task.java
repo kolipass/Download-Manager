@@ -20,6 +20,7 @@ public abstract class Task extends Observable implements Runnable {
      * Пауза таска. Остановка произайдет не сразу, а через некоторое время из-за выполнение тяжелого процесса в другом потоке
      */
     public void pause() {
+        setChanged();
         publishProgress(taskStatus.setStatus(TaskStatus.STATUS_PAUSED));
     }
 
@@ -31,7 +32,7 @@ public abstract class Task extends Observable implements Runnable {
     }
 
     /**
-     * Отмена  таска. Остановка произайдет не сразу, а через некоторое время из-за выполнение тяжелого процесса в другом потоке
+     * Отмена таска. Остановка произайдет не сразу, а через некоторое время из-за выполнение тяжелого процесса в другом потоке
      */
     public void cancel() {
         publishProgress(taskStatus.setStatus(TaskStatus.STATUS_CANCELED));
@@ -42,7 +43,10 @@ public abstract class Task extends Observable implements Runnable {
      *
      * @param taskStatus текущий статус
      */
-    abstract void publishProgress(TaskStatus taskStatus);
+    protected void publishProgress(TaskStatus taskStatus) {
+        setChanged();
+        notifyObservers(taskStatus);
+    }
 
     /**
      * "Тяжелая работа" выполняется здесь
@@ -56,7 +60,10 @@ public abstract class Task extends Observable implements Runnable {
      *
      * @param taskStatus текущий статус
      */
-    abstract void onPostExecute(TaskStatus taskStatus);
+    protected void onPostExecute(TaskStatus taskStatus) {
+        setChanged();
+        notifyObservers(taskStatus);
+    }
 
     /**
      * Запуск единственно верный. "тяжелой работы" в новом потоке
@@ -86,5 +93,14 @@ public abstract class Task extends Observable implements Runnable {
         onPostExecute(heavyTask());
     }
 
+    /**
+     * Получим имя файла
+     * @param url путь из которого выудим последнюю часть после /
+     * @return верну строку, как раз такую, как надо)
+     */
+
+    String getFileName(String url) {
+        return url.substring(url.lastIndexOf('/') + 1);
+    }
 }
 

@@ -6,14 +6,14 @@ package ru.icomplex.gdeUslugi.downloadManager.manager;
  */
 public class StringResourceManager {
     public String getParseUrlError() {
-        return "Could not be parsed as a URL";
+        return "Could not be parsed as a URL:";
     }
 
     public String getErrorOccurse() {
         return "error occurs while opening the connection.";
     }
     public String getErrorResponse() {
-        return "Неполадки на сервере";
+        return "Неполадки на сервере: ";
     }
     public String getErrorUnzipping() {
         return "Произошла ошибка разпаковки. Попробуйте снова";

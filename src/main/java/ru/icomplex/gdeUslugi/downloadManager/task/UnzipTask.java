@@ -8,12 +8,12 @@ import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-public class DecompressTask extends Task {
+public class UnzipTask extends Task {
     private static final int MAX_BUFFER_SIZE = 2048;
     private String zipFile;
     private String location;
 
-    public DecompressTask(StringResourceManager resourceManager, String key, String zipFile, String location) {
+    public UnzipTask(StringResourceManager resourceManager, String key, String zipFile, String location) {
         this.resourceManager = resourceManager;
         this.zipFile = zipFile;
         this.taskStatus = new TaskStatus(key);
@@ -35,7 +35,7 @@ public class DecompressTask extends Task {
 
         File file = new File(zipFile);
 
-        ZipFile zip = null;
+        ZipFile zip;
         try {
             zip = new ZipFile(file);
         } catch (IOException e) {
@@ -45,13 +45,12 @@ public class DecompressTask extends Task {
             return taskStatus;
         }
 
-        String newPath = location;
-
-        new File(newPath).mkdir();
+        new File(location).mkdir();
         Enumeration zipFileEntries = zip.entries();
 
         int total = zip.size();
         taskStatus.setStatus(TaskStatus.STATUS_START);
+        taskStatus.setMessage("unzip "+getFileName(zipFile) + " [" + String.valueOf(total) + "]");
         taskStatus.setMax(total);
         publishProgress(taskStatus);
         // Process each entry
@@ -63,13 +62,13 @@ public class DecompressTask extends Task {
             // grab a zip file entry
             ZipEntry entry = (ZipEntry) zipFileEntries.nextElement();
             String currentEntry = entry.getName();
-            File destFile = new File(newPath, currentEntry);
+            File destFile = new File(location, currentEntry);
 
             // create the parent directory structure if needed
             destFile.getParentFile().mkdirs();
 
             if (!entry.isDirectory()) {
-                BufferedInputStream is = null;
+                BufferedInputStream is;
                 try {
                     is = new BufferedInputStream(
                             zip.getInputStream(entry));
@@ -142,17 +141,5 @@ public class DecompressTask extends Task {
             e.printStackTrace();
             return taskStatus;
         }
-    }
-
-    @Override
-    void publishProgress(TaskStatus taskStatus) {
-        setChanged();
-        notifyObservers(taskStatus);
-    }
-
-    @Override
-    protected void onPostExecute(TaskStatus unused) {
-        setChanged();
-        notifyObservers(unused);
     }
 }
