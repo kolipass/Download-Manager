@@ -11,7 +11,7 @@ import java.util.Observable;
  * Date: 09.11.12
  * Родоначальник тасков. Тяжелая задача будет выполнена в новом потоке. Таск генерирует события.
  */
-public abstract class Task extends Observable implements Runnable {
+public abstract class TaskAbstract extends Observable implements Runnable {
     private final String tag = getClass().getSimpleName();
     protected TaskStatus taskStatus;
     protected StringResourceManager resourceManager;
@@ -87,14 +87,13 @@ public abstract class Task extends Observable implements Runnable {
     /**
      * Внутренняя реализация интерфейса Runnable. Для запуска таска использовать createTreadTask()!
      */
-
-
     public final void run() {
         onPostExecute(heavyTask());
     }
 
     /**
      * Получим имя файла
+     *
      * @param url путь из которого выудим последнюю часть после /
      * @return верну строку, как раз такую, как надо)
      */

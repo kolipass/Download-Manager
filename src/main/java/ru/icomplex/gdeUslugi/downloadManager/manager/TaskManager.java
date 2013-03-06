@@ -1,6 +1,6 @@
 package ru.icomplex.gdeUslugi.downloadManager.manager;
 
-import ru.icomplex.gdeUslugi.downloadManager.task.Task;
+import ru.icomplex.gdeUslugi.downloadManager.task.TaskAbstract;
 import ru.icomplex.gdeUslugi.downloadManager.task.TaskStatus;
 
 import java.util.HashMap;
@@ -15,7 +15,7 @@ import java.util.Observer;
  * Менеджер задач.
  */
 public class TaskManager extends Observable implements Observer {
-    Map<String, Task> taskMap;
+    Map<String, TaskAbstract> taskMap;
 
 
     public TaskManager() {
@@ -28,7 +28,7 @@ public class TaskManager extends Observable implements Observer {
      * @param tag тег загрузки
      */
     public void start(String tag) {
-        Task task = taskMap.get(tag);
+        TaskAbstract task = taskMap.get(tag);
         if (task != null && task.getTaskStatus().getStatus() != TaskStatus.STATUS_WORKING) {
             task.createTreadTask();
         }
@@ -40,7 +40,7 @@ public class TaskManager extends Observable implements Observer {
      * @param tag  тег загрузки
      * @param task Задача, которую стартуем.
      */
-    public void start(String tag, Task task) {
+    public void start(String tag, TaskAbstract task) {
         if (!tag.isEmpty() && task != null) {
             if (taskMap != null) {
                 if (!taskMap.containsKey(tag)) {
@@ -51,20 +51,20 @@ public class TaskManager extends Observable implements Observer {
         }
     }
 
-    public void addTask(String tag, Task task) {
+    public void addTask(String tag, TaskAbstract task) {
         task.addObserver(this);
         taskMap.put(tag, task);
     }
 
     public void pause(String tag) {
-        Task task = getTask(tag);
+        TaskAbstract task = getTask(tag);
         if (task != null) {
             task.pause();
         }
     }
 
-    private Task getTask(String tag) {
-        Task task = null;
+    public TaskAbstract getTask(String tag) {
+        TaskAbstract task = null;
         if (tag != null && !tag.isEmpty()) {
             task = taskMap.get(tag);
         }
@@ -72,23 +72,24 @@ public class TaskManager extends Observable implements Observer {
     }
 
     public void resume(String tag) {
-        Task task = getTask(tag);
+        TaskAbstract task = getTask(tag);
         if (task != null) {
             task.resume();
         }
     }
 
     public void cancel(String tag) {
-        Task task = getTask(tag);
+        TaskAbstract task = getTask(tag);
         if (task != null) {
             task.cancel();
         }
     }
 
     @Override
-    public void update(Observable observable, Object o) {
-        System.out.println(o);
-
-        notifyObservers(o);
+    public void update(Observable task, Object taskStatus) {
+        if (task != null && task instanceof TaskAbstract) {
+            setChanged();
+            notifyObservers(taskStatus);
+        }
     }
 }

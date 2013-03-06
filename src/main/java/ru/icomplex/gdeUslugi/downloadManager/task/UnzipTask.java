@@ -8,7 +8,7 @@ import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-public class UnzipTask extends Task {
+public class UnzipTask extends TaskAbstract {
     private static final int MAX_BUFFER_SIZE = 2048;
     private String zipFile;
     private String location;

@@ -16,7 +16,7 @@ import java.security.NoSuchAlgorithmException;
  * Поддерживается продолжение загрузки, вертификация файла по мд5 и заранее заданному точному размеру.
  */
 
-public class DownloadFileTask extends Task {
+public class DownloadFileTask extends TaskAbstract {
     private static final int MAX_BUFFER_SIZE = 1024;
     private String path;
     private String urlString;
