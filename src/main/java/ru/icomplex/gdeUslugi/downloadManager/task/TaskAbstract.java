@@ -53,7 +53,7 @@ public abstract class TaskAbstract extends Observable implements Runnable {
      *
      * @return конечный статус
      */
-    abstract TaskStatus heavyTask();
+    protected abstract TaskStatus heavyTask();
 
     /**
      * Метод по окончанию выполнения таска
@@ -87,6 +87,7 @@ public abstract class TaskAbstract extends Observable implements Runnable {
     /**
      * Внутренняя реализация интерфейса Runnable. Для запуска таска использовать createTreadTask()!
      */
+    @Override
     public final void run() {
         onPostExecute(heavyTask());
     }
