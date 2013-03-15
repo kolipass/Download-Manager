@@ -19,7 +19,11 @@ public class StringResourceManager {
         return "Произошла ошибка разпаковки. Попробуйте снова";
     }
     public String getErrorDelete() {
-        return "Произошла ошибка разпаковки. Попробуйте снова";
+        return "Произошла ошибка удаления. Попробуйте снова";
+    }
+
+    public String getErrorDb() {
+        return "Произошла ошибка работы с БД. Попробуйте снова";
     }
 
     public String getCorrectFileExist() {

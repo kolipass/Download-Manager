@@ -1,5 +1,6 @@
 package ru.icomplex.gdeUslugi.downloadManager.task.decoratedTask;
 
+import ru.icomplex.gdeUslugi.downloadManager.manager.StringResourceManager;
 import ru.icomplex.gdeUslugi.downloadManager.task.TaskAbstract;
 import ru.icomplex.gdeUslugi.downloadManager.task.TaskStatus;
 
@@ -16,8 +17,9 @@ import java.util.Observer;
 public abstract class PreExecutableTaskDecoratorAbstract extends TaskAbstract implements Observer {
     TaskAbstract preExecutableTask;
 
-    protected PreExecutableTaskDecoratorAbstract(TaskAbstract taskAbstract) {
-        this.preExecutableTask = taskAbstract;
+    protected PreExecutableTaskDecoratorAbstract(StringResourceManager resourceManager, String tag, TaskAbstract preExecutableTask) {
+        super(resourceManager, tag);
+        this.preExecutableTask = preExecutableTask;
     }
 
     /**
@@ -25,7 +27,7 @@ public abstract class PreExecutableTaskDecoratorAbstract extends TaskAbstract im
      *
      * @return
      */
-    abstract TaskStatus currentHeavyTask();
+   protected abstract TaskStatus currentHeavyTask();
 
     /**
      * Сначало выполняем поставленную задачу, если она есть. Если ее нет, или она выполнилась корректно, то выполняем свою задачу

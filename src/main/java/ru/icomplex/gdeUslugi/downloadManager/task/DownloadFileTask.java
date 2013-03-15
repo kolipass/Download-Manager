@@ -12,6 +12,8 @@ import java.net.URLConnection;
 import java.nio.file.Files;
 import java.security.NoSuchAlgorithmException;
 
+import static ru.icomplex.gdeUslugi.downloadManager.task.TaskStatus.*;
+
 /**
  * Основной класс загрузки данных
  * Поддерживается продолжение загрузки, вертификация файла по мд5 и заранее заданному точному размеру.
@@ -29,8 +31,7 @@ public class DownloadFileTask extends TaskAbstract {
 
 
     public DownloadFileTask(StringResourceManager resourceManager, String tag, String path, String url, String md5, Long size) {
-        this.resourceManager = resourceManager;
-        this.taskStatus = new TaskStatus(tag);
+        super(resourceManager, tag);
         this.path = path;
         this.urlString = url;
         this.md5 = md5 != null && !md5.isEmpty() ? md5 : "";
@@ -97,18 +98,18 @@ public class DownloadFileTask extends TaskAbstract {
         try {
             url = new URL(urlString);
         } catch (MalformedURLException e) {
-            taskStatus.setStatus(TaskStatus.STATUS_ERROR);
+            taskStatus.setStatus(STATUS_ERROR);
             taskStatus.setMessage(resourceManager.getParseUrlError() + urlString);
             e.printStackTrace();
             return taskStatus;
         }
 
         //Если таску изменили состояние еще до начала работы, то выйти, иначе ставим состояние
-        if (taskStatus.getStatus() != TaskStatus.STATUS_NONE && taskStatus.getStatus() != TaskStatus.STATUS_PAUSED && taskStatus.getStatus() != TaskStatus.STATUS_CANCELED) {
+        if (taskStatus.getStatus() != STATUS_NONE && taskStatus.getStatus() != STATUS_PAUSED && taskStatus.getStatus() != STATUS_CANCELED) {
             return taskStatus;
         }
 
-        taskStatus.setStatus(TaskStatus.STATUS_START);
+        taskStatus.setStatus(STATUS_START);
         taskStatus.setMessage(fileName + " [" + String.valueOf(toKb(size)) + "Kb]");
 
         publishProgress(taskStatus);
@@ -116,7 +117,7 @@ public class DownloadFileTask extends TaskAbstract {
 
         // проверка на наличие этого файла в уже загруженных
         if (existingFileIsCorrect(path, fileName)) {
-            taskStatus.setStatus(TaskStatus.STATUS_FINISH);
+            taskStatus.setStatus(STATUS_FINISH);
             taskStatus.setMessage(resourceManager.getCorrectFileExist());
             return taskStatus;
         }
@@ -138,12 +139,12 @@ public class DownloadFileTask extends TaskAbstract {
 
             // Make sure response code is in the 200 range.
             if (connection.getResponseCode() / 100 != 2) {
-                taskStatus.setStatus(TaskStatus.STATUS_ERROR);
+                taskStatus.setStatus(STATUS_ERROR);
                 taskStatus.setMessage(resourceManager.getErrorResponse() + connection.getResponseCode());
                 return taskStatus;
             }
         } catch (IOException e) {
-            taskStatus.setStatus(TaskStatus.STATUS_ERROR);
+            taskStatus.setStatus(STATUS_ERROR);
             taskStatus.setMessage(resourceManager.getErrorOccurse());
             e.printStackTrace();
             return taskStatus;
@@ -155,7 +156,7 @@ public class DownloadFileTask extends TaskAbstract {
 
         if (lengthFileToDownload == 0 || (size > 0 && size < lengthFileToDownload)) {
 //                Файл поврежден на сервере
-            taskStatus.setStatus(TaskStatus.STATUS_ERROR);
+            taskStatus.setStatus(STATUS_ERROR);
             taskStatus.setMessage(resourceManager.getFileCorruptedOnServer());
             return taskStatus;
         }
@@ -165,12 +166,12 @@ public class DownloadFileTask extends TaskAbstract {
             file = new RandomAccessFile(getFilePath(path, fileName), "rw");
             file.seek(downloaded);
         } catch (FileNotFoundException e) {
-            taskStatus.setStatus(TaskStatus.STATUS_ERROR);
+            taskStatus.setStatus(STATUS_ERROR);
             taskStatus.setMessage(resourceManager.getWriteError());
             e.printStackTrace();
             return taskStatus;
         } catch (IOException e) {
-            taskStatus.setStatus(TaskStatus.STATUS_ERROR);
+            taskStatus.setStatus(STATUS_ERROR);
             taskStatus.setMessage(resourceManager.getWriteError());
             e.printStackTrace();
             return taskStatus;
@@ -180,7 +181,7 @@ public class DownloadFileTask extends TaskAbstract {
         try {
             stream = connection.getInputStream();
         } catch (IOException e) {
-            taskStatus.setStatus(TaskStatus.STATUS_ERROR);
+            taskStatus.setStatus(STATUS_ERROR);
             taskStatus.setMessage(resourceManager.getErrorOccurse());
             e.printStackTrace();
             return taskStatus;
@@ -188,11 +189,13 @@ public class DownloadFileTask extends TaskAbstract {
 
         //Сама загрузка
         try {
-            taskStatus.setStatus(TaskStatus.STATUS_WORKING);
+            taskStatus.setStatus(STATUS_WORKING);
             taskStatus.setMax(lengthOfFile);
             taskStatus.setCurrent_progress(downloaded);
 
-            while (taskStatus.getStatus() == TaskStatus.STATUS_WORKING) {
+            Long percentStorage = getPercentRate(lengthOfFile);
+
+            while (taskStatus.getStatus() == STATUS_WORKING) {
         /* Size buffer according to how much of the
            file is left to download. */
 
@@ -214,31 +217,39 @@ public class DownloadFileTask extends TaskAbstract {
                 // Write buffer to file.
                 file.write(buffer, 0, read);
                 downloaded += read;
+
                 taskStatus.setCurrent_progress(downloaded);
-                publishProgress(taskStatus);
+                //Публиковать только по целому проценту
+                percentStorage -= read;
+                if (percentStorage <= 0L) {
+                    publishProgress(taskStatus);
+                    percentStorage = getPercentRate(lengthOfFile);
+
+                }
+
             }
 
-            if (taskStatus.getStatus() == TaskStatus.STATUS_CANCELED || taskStatus.getStatus() == TaskStatus.STATUS_PAUSED || taskStatus.getStatus() == TaskStatus.STATUS_ERROR) {
+            if (taskStatus.getStatus() == STATUS_CANCELED || taskStatus.getStatus() == STATUS_PAUSED || taskStatus.getStatus() == STATUS_ERROR) {
                 return taskStatus;
             }
-            taskStatus.setStatus(TaskStatus.STATUS_FINISH);
+            taskStatus.setStatus(STATUS_FINISH);
 
             InputStream downloaded_file = new FileInputStream(getFilePath(path, fileName));
             if (md5.equals(MD5.Hashing(downloaded_file))) {
                 downloaded_file.close();
-                taskStatus.setStatus(TaskStatus.STATUS_FINISH);
+                taskStatus.setStatus(STATUS_FINISH);
                 return taskStatus;
             } else {
                 downloaded_file.close();
                 File errorFile = new File(getFilePath(path, fileName));
                 errorFile.delete();
-                taskStatus.setStatus(TaskStatus.STATUS_ERROR);
+                taskStatus.setStatus(STATUS_ERROR);
                 taskStatus.setMessage(resourceManager.getFileIsCorrupted());
                 return taskStatus;
             }
 
         } catch (IOException e) {
-            taskStatus.setStatus(TaskStatus.STATUS_ERROR);
+            taskStatus.setStatus(STATUS_ERROR);
             taskStatus.setMessage(resourceManager.getErrorOccurse());
             e.printStackTrace();
             return taskStatus;

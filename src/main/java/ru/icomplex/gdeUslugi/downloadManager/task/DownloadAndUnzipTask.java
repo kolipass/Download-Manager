@@ -30,9 +30,8 @@ public class DownloadAndUnzipTask extends TaskAbstract implements Observer {
 
     public DownloadAndUnzipTask(StringResourceManager resourceManager, String tag, String path, String url, String md5,
                                 Long size, String unpackingCatalog) {
-        this.resourceManager = resourceManager;
+        super(resourceManager, tag);
         this.tag = tag;
-        this.taskStatus = new TaskStatus(tag);
         this.path = path;
         this.url = url;
         this.md5 = md5 != null && !md5.isEmpty() ? md5 : "";
@@ -94,7 +93,7 @@ public class DownloadAndUnzipTask extends TaskAbstract implements Observer {
 
             //Удалить если параметр активен
             if (taskStatus.getStatus() != STATUS_CANCELED && isCorrectFinish(currentTask) && deleteZipAfterUnzip) {
-                currentTask = new DeleteFileTask(zipLocation, tag);
+                currentTask = new DeleteFileTask(resourceManager, zipLocation, tag);
                 currentTask.addObserver(this);
                 publishProgress(currentTask.heavyTask());
             }

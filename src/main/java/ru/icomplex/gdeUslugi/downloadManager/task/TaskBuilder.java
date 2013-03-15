@@ -30,10 +30,10 @@ public class TaskBuilder {
             String zipFile = ((DownloadFileTask) taskAbstract).getFilePath();
             String unpackingCatalog = (String) params.get("unpackingCatalog");
 
-            taskAbstract = new UnzipAfterTask(taskAbstract, resourceManager, tag, zipFile, unpackingCatalog);
+            taskAbstract = new UnzipAfterTask(resourceManager, tag, taskAbstract, zipFile, unpackingCatalog);
 
             if ((Boolean) params.get("deleteAfter")) {
-                taskAbstract = new DeleteFileAfterTask(taskAbstract, zipFile, tag);
+                taskAbstract = new DeleteFileAfterTask(resourceManager, tag, taskAbstract, zipFile);
             }
         } catch (NullPointerException e) {
             e.printStackTrace();
@@ -43,7 +43,7 @@ public class TaskBuilder {
     }
 
     public static Map<String, Object> getParams(StringResourceManager resourceManager, String tag, String path, String url, String md5,
-                                         Long size, String unpackingCatalog, Boolean deleteAfter) {
+                                                Long size, String unpackingCatalog, Boolean deleteAfter) {
         Map<String, Object> params = new HashMap<>();
 
         params.put("stringResourceManager", resourceManager);

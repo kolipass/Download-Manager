@@ -18,11 +18,9 @@ public class UnzipAfterTask extends PreExecutableTaskDecoratorAbstract {
     private String zipFile;
     private String location;
 
-    public UnzipAfterTask(TaskAbstract afterTask, StringResourceManager resourceManager, String key, String zipFile, String location) {
-        super(afterTask);
-        this.resourceManager = resourceManager;
+    public UnzipAfterTask(StringResourceManager resourceManager, String tag, TaskAbstract preExecutableTask, String zipFile, String location) {
+        super(resourceManager, tag, preExecutableTask);
         this.zipFile = zipFile;
-        this.taskStatus = new TaskStatus(key);
         this.location = location;
     }
 
@@ -54,13 +52,15 @@ public class UnzipAfterTask extends PreExecutableTaskDecoratorAbstract {
         new File(location).mkdir();
         Enumeration zipFileEntries = zip.entries();
 
-        int total = zip.size();
+        Long total = (long) zip.size();
         taskStatus.setStatus(STATUS_START);
         taskStatus.setMessage("unzip " + getFileName(zipFile) + " [" + String.valueOf(total) + "]");
         taskStatus.setMax(total);
         publishProgress(taskStatus);
         // Process each entry
         int current = 0;
+
+        Long percentStorage = getPercentRate(total);
         while (zipFileEntries.hasMoreElements()) {
             if (taskStatus.getStatus() == STATUS_CANCELED || taskStatus.getStatus() == STATUS_PAUSED || taskStatus.getStatus() == STATUS_ERROR) {
                 return taskStatus;
@@ -116,15 +116,19 @@ public class UnzipAfterTask extends PreExecutableTaskDecoratorAbstract {
 //            }
 
             taskStatus.setStatus(STATUS_WORKING);
-            taskStatus.setCurrent_progress(current++);
-            publishProgress(taskStatus);
+            taskStatus.setCurrent_progress(++current);
+            percentStorage -= 1;
+            if (percentStorage <= 0L) {
+                publishProgress(taskStatus);
+                percentStorage = getPercentRate(total);
+            }
         }
         taskStatus.setStatus(STATUS_FINISH);
         return taskStatus;
     }
 
     @Override
-    TaskStatus currentHeavyTask() {
+    protected TaskStatus currentHeavyTask() {
         if (zipFile == null || zipFile.isEmpty()) {
             taskStatus.setStatus(STATUS_ERROR);
             taskStatus.setMessage(resourceManager.getZipFilePaphIsEmpty());

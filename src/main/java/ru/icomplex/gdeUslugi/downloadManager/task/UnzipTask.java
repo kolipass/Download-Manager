@@ -14,9 +14,8 @@ public class UnzipTask extends TaskAbstract {
     private String location;
 
     public UnzipTask(StringResourceManager resourceManager, String key, String zipFile, String location) {
-        this.resourceManager = resourceManager;
+        super(resourceManager, key);
         this.zipFile = zipFile;
-        this.taskStatus = new TaskStatus(key);
         this.location = location;
     }
 
@@ -50,7 +49,7 @@ public class UnzipTask extends TaskAbstract {
 
         int total = zip.size();
         taskStatus.setStatus(TaskStatus.STATUS_START);
-        taskStatus.setMessage("unzip "+getFileName(zipFile) + " [" + String.valueOf(total) + "]");
+        taskStatus.setMessage("unzip " + getFileName(zipFile) + " [" + String.valueOf(total) + "]");
         taskStatus.setMax(total);
         publishProgress(taskStatus);
         // Process each entry

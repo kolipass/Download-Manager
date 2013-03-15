@@ -8,8 +8,8 @@ public class App {
     public static void main(String[] args) {
         String url = "http://www.gdeuslugi.ic/files/export/mobiledb_moskva.zip";
         String path = "./Download/";
-        String md5 = "c3cc846b76b28d7e41ea5f538fedc808";
-        Long size = 6370305L;
+        String md5 = "878854c90fd968b8779146d8ac0d5e30";
+        Long size = 6370041L;
         TaskManager manager = TaskManager.getInstance();
         String tag = "Abakan";
 

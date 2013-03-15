@@ -1,5 +1,7 @@
 package ru.icomplex.gdeUslugi.downloadManager.task;
 
+import ru.icomplex.gdeUslugi.downloadManager.manager.StringResourceManager;
+
 import java.io.File;
 
 /**
@@ -11,9 +13,9 @@ public class DeleteFileTask extends TaskAbstract {
 
     private String filePath;
 
-    protected DeleteFileTask(String filePath, String key) {
+    protected DeleteFileTask(StringResourceManager resourceManager, String filePath, String tag) {
+        super(resourceManager, tag);
         this.filePath = filePath;
-        this.taskStatus = new TaskStatus(key);
     }
 
     @Override

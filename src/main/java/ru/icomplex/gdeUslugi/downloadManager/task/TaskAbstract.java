@@ -3,6 +3,7 @@ package ru.icomplex.gdeUslugi.downloadManager.task;
 
 import ru.icomplex.gdeUslugi.downloadManager.manager.StringResourceManager;
 
+import java.math.BigDecimal;
 import java.util.Observable;
 
 /**
@@ -17,6 +18,11 @@ public abstract class TaskAbstract extends Observable implements Runnable {
     volatile protected TaskStatus taskStatus;
     Thread thread = null;
 
+    protected TaskAbstract(StringResourceManager resourceManager, String tag) {
+        this.resourceManager = resourceManager;
+        this.taskStatus = new TaskStatus(tag);
+    }
+
     /**
      * Получим имя файла
      *
@@ -26,6 +32,11 @@ public abstract class TaskAbstract extends Observable implements Runnable {
 
     static public String getFileName(String url) {
         return url.substring(url.lastIndexOf('/') + 1);
+    }
+
+    static public Long getPercentRate(Long max) {
+        BigDecimal decimal = BigDecimal.valueOf(max / 10);
+        return decimal.toBigInteger().longValue();
     }
 
     /**
