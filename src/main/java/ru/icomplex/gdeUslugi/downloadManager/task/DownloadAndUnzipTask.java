@@ -5,13 +5,17 @@ import ru.icomplex.gdeUslugi.downloadManager.manager.StringResourceManager;
 import java.util.Observable;
 import java.util.Observer;
 
+import static ru.icomplex.gdeUslugi.downloadManager.task.TaskStatus.STATUS_CANCELED;
+
 /**
  * Created with IntelliJ IDEA.
  * User: artem
  * Date: 27.02.13
  * Time: 13:47
- * Таск, который загружает, а потом распоковывает
+ * Таск, который загружает, а потом распоковывает, а еще и удалит, если попросить.
+ * Морально устарел. Рекомендую использовать декорирование. Появился строитель декоррированных тасков, аналогичных по функционалу этому
  */
+@Deprecated
 public class DownloadAndUnzipTask extends TaskAbstract implements Observer {
     //Текущая задача
     TaskAbstract currentTask = null;
@@ -21,6 +25,7 @@ public class DownloadAndUnzipTask extends TaskAbstract implements Observer {
     private Long size;
     private String tag;
     private String unpackingCatalog;
+    private boolean deleteZipAfterUnzip = false;
 
 
     public DownloadAndUnzipTask(StringResourceManager resourceManager, String tag, String path, String url, String md5,
@@ -35,6 +40,11 @@ public class DownloadAndUnzipTask extends TaskAbstract implements Observer {
 
         this.unpackingCatalog = unpackingCatalog;
 
+    }
+
+    public DownloadAndUnzipTask setDeleteZipAfterUnzip(boolean deleteZipAfterUnzip) {
+        this.deleteZipAfterUnzip = deleteZipAfterUnzip;
+        return this;
     }
 
     public TaskStatus getTaskStatus() {
@@ -52,9 +62,9 @@ public class DownloadAndUnzipTask extends TaskAbstract implements Observer {
 
     @Override
     public void resume() {
-        if (currentTask != null) {
-            currentTask.resume();
-        }
+//        if (currentTask != null) {
+//            currentTask.resume();
+//        }
     }
 
     @Override
@@ -62,11 +72,11 @@ public class DownloadAndUnzipTask extends TaskAbstract implements Observer {
         if (currentTask != null) {
             currentTask.cancel();
         }
-        publishProgress(taskStatus.setStatus(TaskStatus.STATUS_CANCELED));
+        publishProgress(taskStatus.setStatus(STATUS_CANCELED));
     }
 
     @Override
-    TaskStatus heavyTask() {
+    public TaskStatus heavyTask() {
         return downloadAndUnzip();
     }
 
@@ -76,13 +86,24 @@ public class DownloadAndUnzipTask extends TaskAbstract implements Observer {
 
         publishProgress(currentTask.heavyTask());
 
-        if (currentTask.getTaskStatus().getStatus() == TaskStatus.STATUS_FINISH) {
+        if (isCorrectFinish(currentTask) && taskStatus.getStatus() != STATUS_CANCELED) {
             String zipLocation = ((DownloadFileTask) currentTask).getFilePath();
             currentTask = new UnzipTask(resourceManager, tag, zipLocation, unpackingCatalog);
             currentTask.addObserver(this);
             publishProgress(currentTask.heavyTask());
+
+            //Удалить если параметр активен
+            if (taskStatus.getStatus() != STATUS_CANCELED && isCorrectFinish(currentTask) && deleteZipAfterUnzip) {
+                currentTask = new DeleteFileTask(zipLocation, tag);
+                currentTask.addObserver(this);
+                publishProgress(currentTask.heavyTask());
+            }
         }
         return currentTask.getTaskStatus();
+    }
+
+    private boolean isCorrectFinish(TaskAbstract currentTask) {
+        return (currentTask.getTaskStatus().getStatus() == TaskStatus.STATUS_FINISH);
     }
 
     @Override

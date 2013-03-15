@@ -2,17 +2,26 @@ package ru.icomplex.gdeUslugi.downloadManager;
 
 import ru.icomplex.gdeUslugi.downloadManager.manager.StringResourceManager;
 import ru.icomplex.gdeUslugi.downloadManager.manager.TaskManager;
-import ru.icomplex.gdeUslugi.downloadManager.task.DownloadAndUnzipTask;
+import ru.icomplex.gdeUslugi.downloadManager.task.TaskBuilder;
 
 public class App {
     public static void main(String[] args) {
-        String url = "http://gdekvartira.su/download/abakan_small_1361339108.zip";
+        String url = "http://www.gdeuslugi.ic/files/export/mobiledb_moskva.zip";
         String path = "./Download/";
-        String md5 = "4f009498a7c937bd66b42d1e00b27db0";
-        Long size = 394079L;
-        TaskManager manager = new TaskManager();
+        String md5 = "c3cc846b76b28d7e41ea5f538fedc808";
+        Long size = 6370305L;
+        TaskManager manager = TaskManager.getInstance();
         String tag = "Abakan";
-        manager.start(tag, new DownloadAndUnzipTask(new StringResourceManager(), tag, path, url, md5, size, path+"unpack/"));
+
+
+//        TaskAbstract download = new DownloadFileTask(new StringResourceManager(), tag, path, url, md5, size);
+//        String zipFile = ((DownloadFileTask) download).getFilePath();
+//
+//        download = new UnzipAfterTask(download, new StringResourceManager(), tag, zipFile, path + "unpack/");
+//        download = new DeleteFileAfterTask(download, zipFile, tag);
+//
+        manager.start(tag, TaskBuilder.downloadUnzip(TaskBuilder.getParams(new StringResourceManager(),
+                tag, path, url, md5, size, path + "unpack/", true)));
 
     }
 }

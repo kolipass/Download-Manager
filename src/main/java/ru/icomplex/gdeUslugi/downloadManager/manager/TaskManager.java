@@ -15,11 +15,24 @@ import java.util.Observer;
  * Менеджер задач.
  */
 public class TaskManager extends Observable implements Observer {
+    private static volatile TaskManager instance;
     Map<String, TaskAbstract> taskMap;
 
-
-    public TaskManager() {
+    private TaskManager() {
         this.taskMap = new HashMap<>();
+    }
+
+    public static TaskManager getInstance() {
+        TaskManager localInstance = instance;
+        if (localInstance == null) {
+            synchronized (TaskManager.class) {
+                localInstance = instance;
+                if (localInstance == null) {
+                    instance = localInstance = new TaskManager();
+                }
+            }
+        }
+        return localInstance;
     }
 
     /**
@@ -88,6 +101,7 @@ public class TaskManager extends Observable implements Observer {
     @Override
     public void update(Observable task, Object taskStatus) {
         if (task != null && task instanceof TaskAbstract) {
+            System.out.println(taskStatus);
             setChanged();
             notifyObservers(taskStatus);
         }

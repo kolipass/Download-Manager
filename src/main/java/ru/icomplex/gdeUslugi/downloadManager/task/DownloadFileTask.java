@@ -8,6 +8,7 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.nio.file.Files;
 import java.security.NoSuchAlgorithmException;
 
@@ -89,10 +90,8 @@ public class DownloadFileTask extends TaskAbstract {
 
     }
 
-
-
     @Override
-    protected TaskStatus heavyTask() {
+    public TaskStatus heavyTask() {
         String fileName = getFileName(urlString);
         URL url;
         try {
@@ -124,12 +123,16 @@ public class DownloadFileTask extends TaskAbstract {
 
         // Open connection to URL.
         HttpURLConnection connection;
+        //Это соединение нужно для того, чтобы знать полный размер файла
+        URLConnection urlConnection;
         try {
+            urlConnection = url.openConnection();
+            urlConnection.connect();
+
             connection = (HttpURLConnection) url.openConnection();
 
             // Specify what portion of file to download.
-            connection.setRequestProperty("Range",
-                    "bytes=" + downloaded + "-");
+            connection.setRequestProperty("Range", "bytes=" + downloaded + "-");
             // Connect to server.
             connection.connect();
 
@@ -147,9 +150,10 @@ public class DownloadFileTask extends TaskAbstract {
         }
 
 
-        long lengthOfFile = connection.getContentLength();
+        long lengthFileToDownload = connection.getContentLength();
+        long lengthOfFile = urlConnection.getContentLength();
 
-        if (lengthOfFile == 0 || (size > 0 && size < lengthOfFile)) {
+        if (lengthFileToDownload == 0 || (size > 0 && size < lengthFileToDownload)) {
 //                Файл поврежден на сервере
             taskStatus.setStatus(TaskStatus.STATUS_ERROR);
             taskStatus.setMessage(resourceManager.getFileCorruptedOnServer());
@@ -272,10 +276,11 @@ public class DownloadFileTask extends TaskAbstract {
 
     /**
      * Путь до файла
+     *
      * @return Возвращает строку-путь до файла (не гарантирует абсолютность)
      */
 
     public String getFilePath() {
-        return filePath;
+        return (filePath == null || filePath.isEmpty()) ? getFilePath(path, getFileName(urlString)) : filePath;
     }
 }

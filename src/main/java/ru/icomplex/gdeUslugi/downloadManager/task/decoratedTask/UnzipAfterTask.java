@@ -1,6 +1,8 @@
-package ru.icomplex.gdeUslugi.downloadManager.task;
+package ru.icomplex.gdeUslugi.downloadManager.task.decoratedTask;
 
 import ru.icomplex.gdeUslugi.downloadManager.manager.StringResourceManager;
+import ru.icomplex.gdeUslugi.downloadManager.task.TaskAbstract;
+import ru.icomplex.gdeUslugi.downloadManager.task.TaskStatus;
 import ru.icomplex.gdeUslugi.downloadManager.utilities.FolderDelelor;
 
 import java.io.*;
@@ -8,12 +10,16 @@ import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-public class UnzipTask extends TaskAbstract {
+import static ru.icomplex.gdeUslugi.downloadManager.task.TaskStatus.*;
+
+
+public class UnzipAfterTask extends PreExecutableTaskDecoratorAbstract {
     private static final int MAX_BUFFER_SIZE = 2048;
     private String zipFile;
     private String location;
 
-    public UnzipTask(StringResourceManager resourceManager, String key, String zipFile, String location) {
+    public UnzipAfterTask(TaskAbstract afterTask, StringResourceManager resourceManager, String key, String zipFile, String location) {
+        super(afterTask);
         this.resourceManager = resourceManager;
         this.zipFile = zipFile;
         this.taskStatus = new TaskStatus(key);
@@ -23,12 +29,12 @@ public class UnzipTask extends TaskAbstract {
     private TaskStatus extractFolder(String zipFile, String location)
             throws IOException {
         if (zipFile == null || zipFile.isEmpty()) {
-            taskStatus.setStatus(TaskStatus.STATUS_ERROR);
+            taskStatus.setStatus(STATUS_ERROR);
             taskStatus.setMessage(resourceManager.getZipFilePaphIsEmpty());
             return taskStatus;
         }
         if (location == null || location.isEmpty()) {
-            taskStatus.setStatus(TaskStatus.STATUS_ERROR);
+            taskStatus.setStatus(STATUS_ERROR);
             taskStatus.setMessage(resourceManager.getSpecifiedLocalPathIsIncorrect());
             return taskStatus;
         }
@@ -39,7 +45,7 @@ public class UnzipTask extends TaskAbstract {
         try {
             zip = new ZipFile(file);
         } catch (IOException e) {
-            taskStatus.setStatus(TaskStatus.STATUS_ERROR);
+            taskStatus.setStatus(STATUS_ERROR);
             taskStatus.setMessage(resourceManager.getWriteError());
             e.printStackTrace();
             return taskStatus;
@@ -49,14 +55,14 @@ public class UnzipTask extends TaskAbstract {
         Enumeration zipFileEntries = zip.entries();
 
         int total = zip.size();
-        taskStatus.setStatus(TaskStatus.STATUS_START);
-        taskStatus.setMessage("unzip "+getFileName(zipFile) + " [" + String.valueOf(total) + "]");
+        taskStatus.setStatus(STATUS_START);
+        taskStatus.setMessage("unzip " + getFileName(zipFile) + " [" + String.valueOf(total) + "]");
         taskStatus.setMax(total);
         publishProgress(taskStatus);
         // Process each entry
         int current = 0;
         while (zipFileEntries.hasMoreElements()) {
-            if (taskStatus.getStatus() == TaskStatus.STATUS_CANCELED || taskStatus.getStatus() == TaskStatus.STATUS_PAUSED || taskStatus.getStatus() == TaskStatus.STATUS_ERROR) {
+            if (taskStatus.getStatus() == STATUS_CANCELED || taskStatus.getStatus() == STATUS_PAUSED || taskStatus.getStatus() == STATUS_ERROR) {
                 return taskStatus;
             }
             // grab a zip file entry
@@ -73,7 +79,7 @@ public class UnzipTask extends TaskAbstract {
                     is = new BufferedInputStream(
                             zip.getInputStream(entry));
                 } catch (IOException e) {
-                    taskStatus.setStatus(TaskStatus.STATUS_ERROR);
+                    taskStatus.setStatus(STATUS_ERROR);
                     taskStatus.setMessage(resourceManager.getWriteError());
                     e.printStackTrace();
                     return taskStatus;
@@ -87,7 +93,7 @@ public class UnzipTask extends TaskAbstract {
                 try {
                     fos = new FileOutputStream(destFile);
                 } catch (FileNotFoundException e) {
-                    taskStatus.setStatus(TaskStatus.STATUS_ERROR);
+                    taskStatus.setStatus(STATUS_ERROR);
                     taskStatus.setMessage(resourceManager.getWriteError());
                     e.printStackTrace();
                 }
@@ -109,30 +115,30 @@ public class UnzipTask extends TaskAbstract {
 //                        zipFile.substring(0, zipFile.length() - 4));
 //            }
 
-            taskStatus.setStatus(TaskStatus.STATUS_WORKING);
+            taskStatus.setStatus(STATUS_WORKING);
             taskStatus.setCurrent_progress(current++);
             publishProgress(taskStatus);
         }
-        taskStatus.setStatus(TaskStatus.STATUS_FINISH);
+        taskStatus.setStatus(STATUS_FINISH);
         return taskStatus;
     }
 
     @Override
-    public TaskStatus heavyTask() {
+    TaskStatus currentHeavyTask() {
         if (zipFile == null || zipFile.isEmpty()) {
-            taskStatus.setStatus(TaskStatus.STATUS_ERROR);
+            taskStatus.setStatus(STATUS_ERROR);
             taskStatus.setMessage(resourceManager.getZipFilePaphIsEmpty());
             return taskStatus;
         }
         if (location == null || location.isEmpty()) {
-            taskStatus.setStatus(TaskStatus.STATUS_ERROR);
+            taskStatus.setStatus(STATUS_ERROR);
             taskStatus.setMessage(resourceManager.getZipFilePaphIsEmpty());
             return taskStatus;
         }
         try {
             return extractFolder(zipFile, location);
         } catch (Exception e) {
-            taskStatus.setStatus(TaskStatus.STATUS_ERROR);
+            taskStatus.setStatus(STATUS_ERROR);
             taskStatus.setMessage(resourceManager.getErrorUnzipping());
 
             //удалить недораспакованное

@@ -125,4 +125,8 @@ public class TaskStatus {
                 ", current_progress=" + current_progress +
                 '}';
     }
+
+    public boolean isCorrectComplate() {
+        return status == STATUS_FINISH;
+    }
 }

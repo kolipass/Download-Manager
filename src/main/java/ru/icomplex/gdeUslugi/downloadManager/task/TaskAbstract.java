@@ -13,15 +13,30 @@ import java.util.Observable;
  */
 public abstract class TaskAbstract extends Observable implements Runnable {
     private final String tag = getClass().getSimpleName();
-    protected TaskStatus taskStatus;
     protected StringResourceManager resourceManager;
+    volatile protected TaskStatus taskStatus;
+    Thread thread = null;
+
+    /**
+     * Получим имя файла
+     *
+     * @param url путь из которого выудим последнюю часть после /
+     * @return верну строку, как раз такую, как надо)
+     */
+
+    static public String getFileName(String url) {
+        return url.substring(url.lastIndexOf('/') + 1);
+    }
 
     /**
      * Пауза таска. Остановка произайдет не сразу, а через некоторое время из-за выполнение тяжелого процесса в другом потоке
      */
     public void pause() {
-        setChanged();
-        publishProgress(taskStatus.setStatus(TaskStatus.STATUS_PAUSED));
+        if (thread != null) {
+            setChanged();
+            publishProgress(taskStatus.setStatus(TaskStatus.STATUS_PAUSED));
+
+        }
     }
 
     /**
@@ -53,7 +68,7 @@ public abstract class TaskAbstract extends Observable implements Runnable {
      *
      * @return конечный статус
      */
-    protected abstract TaskStatus heavyTask();
+    public abstract TaskStatus heavyTask();
 
     /**
      * Метод по окончанию выполнения таска
@@ -72,8 +87,8 @@ public abstract class TaskAbstract extends Observable implements Runnable {
     public void createTreadTask() {
         if (taskStatus.getStatus() != TaskStatus.STATUS_WORKING)
             try {
-                Thread thread = new Thread(this);
-                Thread.sleep(200);
+                thread = new Thread(this);
+//                Thread.sleep(200);
                 thread.start();
             } catch (Exception e) {
                 e.printStackTrace();
@@ -90,17 +105,6 @@ public abstract class TaskAbstract extends Observable implements Runnable {
     @Override
     public final void run() {
         onPostExecute(heavyTask());
-    }
-
-    /**
-     * Получим имя файла
-     *
-     * @param url путь из которого выудим последнюю часть после /
-     * @return верну строку, как раз такую, как надо)
-     */
-
-    String getFileName(String url) {
-        return url.substring(url.lastIndexOf('/') + 1);
     }
 }
 
