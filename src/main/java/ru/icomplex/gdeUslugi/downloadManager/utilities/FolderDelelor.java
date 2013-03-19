@@ -19,7 +19,7 @@ public final class FolderDelelor {
 
     }
 
-    static public boolean deleteDirectory(File path) {
+    static private boolean deleteDirectory(File path) {
         if (path.exists()) {
             File[] files = path.listFiles();
             for (File file : files) {

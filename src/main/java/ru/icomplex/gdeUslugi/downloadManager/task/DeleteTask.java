@@ -8,12 +8,15 @@ import java.io.File;
  * User: artem
  * Date: 13.03.13
  * Time: 13:13
+ * <p/>
+ * Рекомендую использовать ru.icomplex.gdeUslugi.downloadManager.task.decoratedTask.DeleteFilesAfterTask
  */
-public class DeleteFileTask extends TaskAbstract {
+@Deprecated
+public class DeleteTask extends TaskAbstract {
 
     private String filePath;
 
-    protected DeleteFileTask(StringResourceManager resourceManager, String filePath, String tag) {
+    protected DeleteTask(StringResourceManager resourceManager, String tag, String filePath) {
         super(resourceManager, tag);
         this.filePath = filePath;
     }

@@ -27,7 +27,7 @@ public abstract class PreExecutableTaskDecoratorAbstract extends TaskAbstract im
      *
      * @return
      */
-   protected abstract TaskStatus currentHeavyTask();
+    protected abstract TaskStatus currentHeavyTask();
 
     /**
      * Сначало выполняем поставленную задачу, если она есть. Если ее нет, или она выполнилась корректно, то выполняем свою задачу
@@ -59,6 +59,25 @@ public abstract class PreExecutableTaskDecoratorAbstract extends TaskAbstract im
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
+            }
+        }
+    }
+
+    /**
+     * Узнаем уровень таска. Нужно для определения колличества послежовательных задач
+     *
+     * @return
+     */
+
+
+    public int taskLevel() {
+        if (preExecutableTask == null) {
+            return 0;
+        } else {
+            if (preExecutableTask instanceof PreExecutableTaskDecoratorAbstract) {
+                return ((PreExecutableTaskDecoratorAbstract) preExecutableTask).taskLevel() + 1;
+            } else {
+                return 1;
             }
         }
     }

@@ -12,6 +12,9 @@ import java.util.zip.ZipFile;
 
 import static ru.icomplex.gdeUslugi.downloadManager.task.TaskStatus.*;
 
+/**
+ * Зип распаковщик.
+ */
 
 public class UnzipAfterTask extends PreExecutableTaskDecoratorAbstract {
     private static final int MAX_BUFFER_SIZE = 2048;
@@ -23,6 +26,7 @@ public class UnzipAfterTask extends PreExecutableTaskDecoratorAbstract {
         this.zipFile = zipFile;
         this.location = location;
     }
+
 
     private TaskStatus extractFolder(String zipFile, String location)
             throws IOException {

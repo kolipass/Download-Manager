@@ -1,7 +1,8 @@
 package ru.icomplex.gdeUslugi.downloadManager.task;
 
 import ru.icomplex.gdeUslugi.downloadManager.manager.StringResourceManager;
-import ru.icomplex.gdeUslugi.downloadManager.task.decoratedTask.DeleteFileAfterTask;
+import ru.icomplex.gdeUslugi.downloadManager.task.decoratedTask.DeleteFilesAfterTask;
+import ru.icomplex.gdeUslugi.downloadManager.task.decoratedTask.DownloadFileAfterTask;
 import ru.icomplex.gdeUslugi.downloadManager.task.decoratedTask.UnzipAfterTask;
 
 import java.util.HashMap;
@@ -25,15 +26,15 @@ public class TaskBuilder {
 
         try {
 
-            taskAbstract = new DownloadFileTask(resourceManager, tag, path, url, md5, size);
+            taskAbstract = new DownloadFileAfterTask(resourceManager, tag, null, path, url, md5, size);
 
-            String zipFile = ((DownloadFileTask) taskAbstract).getFilePath();
+            String zipFile = ((DownloadFileAfterTask) taskAbstract).getFilePath();
             String unpackingCatalog = (String) params.get("unpackingCatalog");
 
             taskAbstract = new UnzipAfterTask(resourceManager, tag, taskAbstract, zipFile, unpackingCatalog);
 
             if ((Boolean) params.get("deleteAfter")) {
-                taskAbstract = new DeleteFileAfterTask(resourceManager, tag, taskAbstract, zipFile);
+                taskAbstract = new DeleteFilesAfterTask(resourceManager, tag, taskAbstract, zipFile);
             }
         } catch (NullPointerException e) {
             e.printStackTrace();

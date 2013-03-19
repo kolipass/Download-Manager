@@ -8,6 +8,13 @@ import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+/**
+ * * <p/>
+ * <p/>
+ * Рекомендую использовать ru.icomplex.gdeUslugi.downloadManager.task.decoratedTask.UnzipAfterTask
+ */
+@Deprecated
+
 public class UnzipTask extends TaskAbstract {
     private static final int MAX_BUFFER_SIZE = 2048;
     private String zipFile;

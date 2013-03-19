@@ -1,7 +1,9 @@
-package ru.icomplex.gdeUslugi.downloadManager.task;
+package ru.icomplex.gdeUslugi.downloadManager.task.decoratedTask;
 
 
 import ru.icomplex.gdeUslugi.downloadManager.manager.StringResourceManager;
+import ru.icomplex.gdeUslugi.downloadManager.task.TaskAbstract;
+import ru.icomplex.gdeUslugi.downloadManager.task.TaskStatus;
 import ru.icomplex.gdeUslugi.downloadManager.utilities.MD5;
 
 import java.io.*;
@@ -15,14 +17,15 @@ import java.security.NoSuchAlgorithmException;
 import static ru.icomplex.gdeUslugi.downloadManager.task.TaskStatus.*;
 
 /**
- * Основной класс загрузки данных
- * Поддерживается продолжение загрузки, вертификация файла по мд5 и заранее заданному точному размеру.
+ * Основной класс загрузки данных.
  * <p/>
- * <p/>
- * Рекомендую использовать ru.icomplex.gdeUslugi.downloadManager.task.decoratedTask.DownloadFileAfterTask
+ * Поддерживается:
+ * - Продолжение загрузки(Если сервер поддерживает);
+ * - Вертификация файла по мд5 (не обязательно);
+ * - Вертификация по заранее заданному точному размеру (не обязательно).
  */
-@Deprecated
-public class DownloadFileTask extends TaskAbstract {
+
+public class DownloadFileAfterTask extends PreExecutableTaskDecoratorAbstract {
     private static final int MAX_BUFFER_SIZE = 1024;
     private String path;
     private String urlString;
@@ -33,13 +36,12 @@ public class DownloadFileTask extends TaskAbstract {
     private String filePath;
 
 
-    public DownloadFileTask(StringResourceManager resourceManager, String tag, String path, String url, String md5, Long size) {
-        super(resourceManager, tag);
+    public DownloadFileAfterTask(StringResourceManager resourceManager, String tag, TaskAbstract preExecutableTask, String path, String urlString, String md5, long size) {
+        super(resourceManager, tag, preExecutableTask);
         this.path = path;
-        this.urlString = url;
-        this.md5 = md5 != null && !md5.isEmpty() ? md5 : "";
+        this.urlString = urlString;
+        this.md5 = md5;
         this.size = size;
-
     }
 
     private long toKb(long size) {
@@ -95,7 +97,7 @@ public class DownloadFileTask extends TaskAbstract {
     }
 
     @Override
-    public TaskStatus heavyTask() {
+    protected TaskStatus currentHeavyTask() {
         String fileName = getFileName(urlString);
         URL url;
         try {

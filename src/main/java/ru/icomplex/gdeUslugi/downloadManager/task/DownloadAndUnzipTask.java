@@ -93,7 +93,7 @@ public class DownloadAndUnzipTask extends TaskAbstract implements Observer {
 
             //Удалить если параметр активен
             if (taskStatus.getStatus() != STATUS_CANCELED && isCorrectFinish(currentTask) && deleteZipAfterUnzip) {
-                currentTask = new DeleteFileTask(resourceManager, zipLocation, tag);
+                currentTask = new DeleteTask(resourceManager, zipLocation, tag);
                 currentTask.addObserver(this);
                 publishProgress(currentTask.heavyTask());
             }
