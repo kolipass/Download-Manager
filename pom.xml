@@ -3,7 +3,7 @@
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>ru.icomplex.gdeUslugi</groupId>
-    <version>1.0</version>
+    <version>1.0-SNAPSHOT</version>
     <artifactId>Download-Manager</artifactId>
     <packaging>jar</packaging>
 
