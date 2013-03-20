@@ -14,7 +14,7 @@ import java.io.File;
  * <p/>
  * Будем уметь удалять не только штучный файл, но и каталоги
  */
-public class DeleteFilesAfterTask extends PreExecutableTaskDecoratorAbstract {
+public class DeleteTask extends DecoratedTaskAbstract {
 
     /**
      * Рекурсивно удаляемся
@@ -26,7 +26,7 @@ public class DeleteFilesAfterTask extends PreExecutableTaskDecoratorAbstract {
     private String filePath;
     private long percentStorage;
 
-    public DeleteFilesAfterTask(StringResourceManager resourceManager, String tag, TaskAbstract preExecutableTask, String filePath) {
+    public DeleteTask(StringResourceManager resourceManager, String tag, TaskAbstract preExecutableTask, String filePath) {
         super(resourceManager, tag, preExecutableTask);
         this.filePath = filePath;
     }
@@ -51,7 +51,7 @@ public class DeleteFilesAfterTask extends PreExecutableTaskDecoratorAbstract {
         }
         path.delete();
         percentStorage -= 1;
-        taskStatus.setCurrent_progress(taskStatus.getCurrent_progress() + 1);
+        taskStatus.setCurrent_progress(taskStatus.getCurrent_progress());
         if (fileCount <= 0) {
             percentStorage = getPercentRate(fileCount);
             publishProgress(taskStatus);
@@ -70,30 +70,31 @@ public class DeleteFilesAfterTask extends PreExecutableTaskDecoratorAbstract {
 
     @Override
     protected TaskStatus currentHeavyTask() {
+        taskStatus.setStatus(TaskStatus.STATUS_START);
+        taskStatus.setMessage("delete " + getFileName(filePath));
         if (filePath == null) {
             taskStatus.setMessage(resourceManager.getErrorDelete());
             taskStatus.setStatus(TaskStatus.STATUS_ERROR);
             return taskStatus;
         }
-            File file = new File(filePath);
-            if (file.exists()) {
-                fileCount = new FileFly().fileFly(filePath);
-            }
-            taskStatus.setStatus(TaskStatus.STATUS_START);
-            taskStatus.setMessage("delete " + getFileName(filePath));
-            taskStatus.setMax(fileCount);
-            taskStatus.setCurrent_progress(0);
-            publishProgress(taskStatus);
-
-            if (fileCount > 0) {
-                try {
-                    percentStorage = getPercentRate(fileCount);
-                    delete(file);
-                } catch (Exception e) {
-                    taskStatus.setMessage(resourceManager.getErrorDelete());
-                }
-            }
-            taskStatus.setStatus(TaskStatus.STATUS_FINISH);
-            return taskStatus;
+        File file = new File(filePath);
+        if (file.exists()) {
+            fileCount = new FileFly().fileFly(filePath);
         }
+        taskStatus.setMax(fileCount);
+        taskStatus.setCurrent_progress(0);
+        publishProgress(taskStatus);
+
+        if (fileCount > 0) {
+            try {
+                percentStorage = getPercentRate(fileCount);
+                taskStatus.setStatus(TaskStatus.STATUS_WORKING);
+                delete(file);
+                taskStatus.setStatus(TaskStatus.STATUS_FINISH);
+            } catch (Exception e) {
+                taskStatus.setMessage(resourceManager.getErrorDelete());
+            }
+        }
+        return taskStatus;
     }
+}

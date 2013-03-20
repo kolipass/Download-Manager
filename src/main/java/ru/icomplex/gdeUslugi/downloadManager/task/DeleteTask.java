@@ -9,7 +9,7 @@ import java.io.File;
  * Date: 13.03.13
  * Time: 13:13
  * <p/>
- * Рекомендую использовать ru.icomplex.gdeUslugi.downloadManager.task.decoratedTask.DeleteFilesAfterTask
+ * Рекомендую использовать ru.icomplex.gdeUslugi.downloadManager.task.decoratedTask.DeleteTask
  */
 @Deprecated
 public class DeleteTask extends TaskAbstract {

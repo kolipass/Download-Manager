@@ -14,12 +14,13 @@ import java.util.Observer;
  * <p/>
  * Динамически наделяемый новыми свойствами таск. Последовательное выполнение свойств
  */
-public abstract class PreExecutableTaskDecoratorAbstract extends TaskAbstract implements Observer {
+public abstract class DecoratedTaskAbstract extends TaskAbstract implements Observer {
     TaskAbstract preExecutableTask;
 
-    protected PreExecutableTaskDecoratorAbstract(StringResourceManager resourceManager, String tag, TaskAbstract preExecutableTask) {
+    protected DecoratedTaskAbstract(StringResourceManager resourceManager, String tag, TaskAbstract preExecutableTask) {
         super(resourceManager, tag);
         this.preExecutableTask = preExecutableTask;
+        taskStatus.setLevel(taskLevel());
     }
 
     /**
@@ -40,9 +41,9 @@ public abstract class PreExecutableTaskDecoratorAbstract extends TaskAbstract im
         if (preExecutableTask != null) {
             preExecutableTask.addObserver(this);
             publishProgress(preExecutableTask.heavyTask());
-            this.taskStatus = preExecutableTask.getTaskStatus();
-            if (!taskStatus.isCorrectComplate()) {
-                return taskStatus;
+            TaskStatus preStatus = preExecutableTask.getTaskStatus();
+            if (!preStatus.isCorrectComplate()) {
+                return null;
             }
         }
         return currentHeavyTask();
@@ -54,8 +55,7 @@ public abstract class PreExecutableTaskDecoratorAbstract extends TaskAbstract im
         if (o instanceof TaskAbstract) {
             if (arg instanceof TaskStatus) {
                 try {
-                    taskStatus = (TaskStatus) arg;
-                    publishProgress(taskStatus);
+                    publishProgress((TaskStatus) arg);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -68,14 +68,12 @@ public abstract class PreExecutableTaskDecoratorAbstract extends TaskAbstract im
      *
      * @return
      */
-
-
     public int taskLevel() {
         if (preExecutableTask == null) {
             return 0;
         } else {
-            if (preExecutableTask instanceof PreExecutableTaskDecoratorAbstract) {
-                return ((PreExecutableTaskDecoratorAbstract) preExecutableTask).taskLevel() + 1;
+            if (preExecutableTask instanceof DecoratedTaskAbstract) {
+                return ((DecoratedTaskAbstract) preExecutableTask).taskLevel() + 1;
             } else {
                 return 1;
             }

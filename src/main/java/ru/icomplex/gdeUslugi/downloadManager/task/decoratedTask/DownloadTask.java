@@ -25,7 +25,7 @@ import static ru.icomplex.gdeUslugi.downloadManager.task.TaskStatus.*;
  * - Вертификация по заранее заданному точному размеру (не обязательно).
  */
 
-public class DownloadFileAfterTask extends PreExecutableTaskDecoratorAbstract {
+public class DownloadTask extends DecoratedTaskAbstract {
     private static final int MAX_BUFFER_SIZE = 1024;
     private String path;
     private String urlString;
@@ -36,7 +36,7 @@ public class DownloadFileAfterTask extends PreExecutableTaskDecoratorAbstract {
     private String filePath;
 
 
-    public DownloadFileAfterTask(StringResourceManager resourceManager, String tag, TaskAbstract preExecutableTask, String path, String urlString, String md5, long size) {
+    public DownloadTask(StringResourceManager resourceManager, String tag, TaskAbstract preExecutableTask, String path, String urlString, String md5, long size) {
         super(resourceManager, tag, preExecutableTask);
         this.path = path;
         this.urlString = urlString;

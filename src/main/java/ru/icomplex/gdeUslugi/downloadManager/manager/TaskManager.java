@@ -2,6 +2,7 @@ package ru.icomplex.gdeUslugi.downloadManager.manager;
 
 import ru.icomplex.gdeUslugi.downloadManager.task.TaskAbstract;
 import ru.icomplex.gdeUslugi.downloadManager.task.TaskStatus;
+import ru.icomplex.gdeUslugi.downloadManager.task.decoratedTask.DecoratedTaskAbstract;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -82,6 +83,22 @@ public class TaskManager extends Observable implements Observer {
             task = taskMap.get(tag);
         }
         return task;
+    }
+
+    /**
+     * Получить уровень таска
+     *
+     * @param tag
+     * @return 0 если такого таска нет, если таск не декоррирован
+     */
+    public int getTaskMaxLevel(String tag) {
+        int level = 0;
+        TaskAbstract taskAbstract = getTask(tag);
+        if (taskAbstract != null && taskAbstract instanceof DecoratedTaskAbstract) {
+            DecoratedTaskAbstract task = (DecoratedTaskAbstract) taskAbstract;
+            level = task.taskLevel();
+        }
+        return level;
     }
 
     public void resume(String tag) {

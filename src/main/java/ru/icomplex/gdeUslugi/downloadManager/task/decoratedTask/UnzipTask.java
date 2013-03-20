@@ -16,12 +16,12 @@ import static ru.icomplex.gdeUslugi.downloadManager.task.TaskStatus.*;
  * Зип распаковщик.
  */
 
-public class UnzipAfterTask extends PreExecutableTaskDecoratorAbstract {
+public class UnzipTask extends DecoratedTaskAbstract {
     private static final int MAX_BUFFER_SIZE = 2048;
     private String zipFile;
     private String location;
 
-    public UnzipAfterTask(StringResourceManager resourceManager, String tag, TaskAbstract preExecutableTask, String zipFile, String location) {
+    public UnzipTask(StringResourceManager resourceManager, String tag, TaskAbstract preExecutableTask, String zipFile, String location) {
         super(resourceManager, tag, preExecutableTask);
         this.zipFile = zipFile;
         this.location = location;

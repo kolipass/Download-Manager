@@ -11,7 +11,7 @@ import java.util.zip.ZipFile;
 /**
  * * <p/>
  * <p/>
- * Рекомендую использовать ru.icomplex.gdeUslugi.downloadManager.task.decoratedTask.UnzipAfterTask
+ * Рекомендую использовать ru.icomplex.gdeUslugi.downloadManager.task.decoratedTask.UnzipTask
  */
 @Deprecated
 

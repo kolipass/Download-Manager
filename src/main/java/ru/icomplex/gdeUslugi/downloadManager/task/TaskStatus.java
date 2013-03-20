@@ -19,6 +19,7 @@ public class TaskStatus {
     private String key;
     private long max = 0;
     private long current_progress = 0;
+    private int level = 0;
 
     TaskStatus(int status, String message, String key, long max, long current_progress) {
 
@@ -83,6 +84,25 @@ public class TaskStatus {
         return this;
     }
 
+    /**
+     * Вернет установленный уровень задачи.
+     *
+     * @return Если уровен не установлен, то вернет 0;
+     */
+
+    public int getLevel() {
+        return level;
+    }
+
+    /**
+     * Устанавливает уровень текущего таска
+     *
+     * @param level
+     */
+    public void setLevel(int level) {
+        this.level = level;
+    }
+
     public String getMessage() {
         return message;
     }
@@ -123,8 +143,10 @@ public class TaskStatus {
                 ", key='" + key + '\'' +
                 ", max=" + max +
                 ", current_progress=" + current_progress +
+                ", level=" + level +
                 '}';
     }
+
 
     public boolean isCorrectComplate() {
         return status == STATUS_FINISH;

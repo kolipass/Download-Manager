@@ -19,7 +19,7 @@ import static ru.icomplex.gdeUslugi.downloadManager.task.TaskStatus.*;
  * Поддерживается продолжение загрузки, вертификация файла по мд5 и заранее заданному точному размеру.
  * <p/>
  * <p/>
- * Рекомендую использовать ru.icomplex.gdeUslugi.downloadManager.task.decoratedTask.DownloadFileAfterTask
+ * Рекомендую использовать ru.icomplex.gdeUslugi.downloadManager.task.decoratedTask.DownloadTask
  */
 @Deprecated
 public class DownloadFileTask extends TaskAbstract {

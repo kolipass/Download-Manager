@@ -35,8 +35,17 @@ public abstract class TaskAbstract extends Observable implements Runnable {
         return url.substring(url.lastIndexOf('/') + 1);
     }
 
+    /**
+     * Для ограничения колличества вызовов обновления на задачах с "многотысячным" процессом.
+     * например наш таск загрузки публикует обновление своего состояния каждый скаченный килобайт.
+     * Чтобы ограничить процентом, используется данная фнкиция
+     *
+     * @param max Максимальная величина
+     * @return единица обновления
+     */
+
     static public Long getPercentRate(Long max) {
-        BigDecimal decimal = BigDecimal.valueOf(max / 10);
+        BigDecimal decimal = BigDecimal.valueOf(max / 100);
         return decimal.toBigInteger().longValue();
     }
 
@@ -71,8 +80,10 @@ public abstract class TaskAbstract extends Observable implements Runnable {
      * @param taskStatus текущий статус
      */
     protected void publishProgress(TaskStatus taskStatus) {
-        setChanged();
-        notifyObservers(taskStatus);
+        if (taskStatus != null) {
+            setChanged();
+            notifyObservers(taskStatus);
+        }
     }
 
     /**
@@ -88,8 +99,7 @@ public abstract class TaskAbstract extends Observable implements Runnable {
      * @param taskStatus текущий статус
      */
     protected void onPostExecute(TaskStatus taskStatus) {
-        setChanged();
-        notifyObservers(taskStatus);
+        publishProgress(taskStatus);
     }
 
     /**

@@ -1,9 +1,8 @@
 package ru.icomplex.gdeUslugi.downloadManager.task;
 
 import ru.icomplex.gdeUslugi.downloadManager.manager.StringResourceManager;
-import ru.icomplex.gdeUslugi.downloadManager.task.decoratedTask.DeleteFilesAfterTask;
-import ru.icomplex.gdeUslugi.downloadManager.task.decoratedTask.DownloadFileAfterTask;
-import ru.icomplex.gdeUslugi.downloadManager.task.decoratedTask.UnzipAfterTask;
+import ru.icomplex.gdeUslugi.downloadManager.task.decoratedTask.*;
+import ru.icomplex.gdeUslugi.downloadManager.task.decoratedTask.DeleteTask;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -26,15 +25,15 @@ public class TaskBuilder {
 
         try {
 
-            taskAbstract = new DownloadFileAfterTask(resourceManager, tag, null, path, url, md5, size);
+            taskAbstract = new DownloadTask(resourceManager, tag, null, path, url, md5, size);
 
-            String zipFile = ((DownloadFileAfterTask) taskAbstract).getFilePath();
+            String zipFile = ((DownloadTask) taskAbstract).getFilePath();
             String unpackingCatalog = (String) params.get("unpackingCatalog");
 
-            taskAbstract = new UnzipAfterTask(resourceManager, tag, taskAbstract, zipFile, unpackingCatalog);
+            taskAbstract = new ru.icomplex.gdeUslugi.downloadManager.task.decoratedTask.UnzipTask(resourceManager, tag, taskAbstract, zipFile, unpackingCatalog);
 
             if ((Boolean) params.get("deleteAfter")) {
-                taskAbstract = new DeleteFilesAfterTask(resourceManager, tag, taskAbstract, zipFile);
+                taskAbstract = new DeleteTask(resourceManager, tag, taskAbstract, zipFile);
             }
         } catch (NullPointerException e) {
             e.printStackTrace();
