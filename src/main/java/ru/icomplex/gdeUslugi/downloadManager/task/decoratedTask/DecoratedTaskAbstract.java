@@ -40,7 +40,9 @@ public abstract class DecoratedTaskAbstract extends TaskAbstract implements Obse
     public final TaskStatus heavyTask() {
         if (preExecutableTask != null) {
             preExecutableTask.addObserver(this);
+            preExecutableTask.setCurrentlyStarted(true);
             publishProgress(preExecutableTask.heavyTask());
+            preExecutableTask.setCurrentlyStarted(false);
             TaskStatus preStatus = preExecutableTask.getTaskStatus();
             if (!preStatus.isCorrectComplate()) {
                 return null;
@@ -48,6 +50,13 @@ public abstract class DecoratedTaskAbstract extends TaskAbstract implements Obse
         }
         return currentHeavyTask();
 
+    }
+
+    public TaskStatus getTaskStatus() {
+        if (preExecutableTask != null && taskStatus.getStatus() == TaskStatus.STATUS_NONE) {
+            return preExecutableTask.getTaskStatus();
+        }
+        return taskStatus;
     }
 
     @Override
@@ -68,6 +77,7 @@ public abstract class DecoratedTaskAbstract extends TaskAbstract implements Obse
      *
      * @return
      */
+
     public int taskLevel() {
         if (preExecutableTask == null) {
             return 0;
@@ -79,4 +89,38 @@ public abstract class DecoratedTaskAbstract extends TaskAbstract implements Obse
             }
         }
     }
+
+    @Override
+    public void cancel() {
+        if (preExecutableTask != null) {
+            if (preExecutableTask.isCurrentlyStarted()) {
+                preExecutableTask.cancel();
+            }
+        }
+        super.cancel();
+
+    }
+
+    @Override
+    public void resume() {
+        if (preExecutableTask != null) {
+            if (preExecutableTask.isCurrentlyStarted()) {
+                preExecutableTask.resume();
+            }
+        } else {
+            super.resume();
+        }
+    }
+
+    @Override
+    public void pause() {
+        if (preExecutableTask != null) {
+            if (preExecutableTask.isCurrentlyStarted()) {
+                preExecutableTask.pause();
+            }
+        } else {
+            super.pause();
+        }
+    }
+
 }

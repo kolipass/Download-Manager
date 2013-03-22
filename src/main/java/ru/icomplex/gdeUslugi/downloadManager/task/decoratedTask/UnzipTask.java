@@ -66,6 +66,7 @@ public class UnzipTask extends DecoratedTaskAbstract {
 
         Long percentStorage = getPercentRate(total);
         while (zipFileEntries.hasMoreElements()) {
+            checkForPaused();
             if (taskStatus.getStatus() == STATUS_CANCELED || taskStatus.getStatus() == STATUS_PAUSED || taskStatus.getStatus() == STATUS_ERROR) {
                 return taskStatus;
             }

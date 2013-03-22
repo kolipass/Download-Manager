@@ -200,7 +200,9 @@ public class DownloadTask extends DecoratedTaskAbstract {
 
             Long percentStorage = getPercentRate(lengthOfFile);
 
-            while (taskStatus.getStatus() == STATUS_WORKING) {
+            while ((size - downloaded) > 0) {
+//            while (taskStatus.getStatus() == STATUS_WORKING) {
+                checkForPaused();
         /* Size buffer according to how much of the
            file is left to download. */
 
@@ -227,11 +229,10 @@ public class DownloadTask extends DecoratedTaskAbstract {
                 //Публиковать только по целому проценту
                 percentStorage -= read;
                 if (percentStorage <= 0L) {
+                    taskStatus.setStatus(STATUS_WORKING);
                     publishProgress(taskStatus);
                     percentStorage = getPercentRate(lengthOfFile);
-
                 }
-
             }
 
             if (taskStatus.getStatus() == STATUS_CANCELED || taskStatus.getStatus() == STATUS_PAUSED || taskStatus.getStatus() == STATUS_ERROR) {

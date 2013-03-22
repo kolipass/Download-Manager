@@ -13,10 +13,13 @@ import java.util.Observable;
  * Родоначальник тасков. Тяжелая задача будет выполнена в новом потоке. Таск генерирует события.
  */
 public abstract class TaskAbstract extends Observable implements Runnable {
+    private final Object GUI_INITIALIZATION_MONITOR = new Object();
     protected String tag;
     protected StringResourceManager resourceManager;
     volatile protected TaskStatus taskStatus;
+    protected volatile boolean currentlyStarted = false;
     Thread thread = null;
+    private boolean pauseThreadFlag = false;
 
     protected TaskAbstract(StringResourceManager resourceManager, String tag) {
         this.resourceManager = resourceManager;
@@ -53,9 +56,14 @@ public abstract class TaskAbstract extends Observable implements Runnable {
      * Пауза таска. Остановка произайдет не сразу, а через некоторое время из-за выполнение тяжелого процесса в другом потоке
      */
     public void pause() {
-        if (thread != null) {
-            setChanged();
-            publishProgress(taskStatus.setStatus(TaskStatus.STATUS_PAUSED));
+        if (thread != null || currentlyStarted) {
+            try {
+                publishProgress(taskStatus.setStatus(TaskStatus.STATUS_PAUSED));
+                pauseThread();
+                setChanged();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
 
         }
     }
@@ -64,7 +72,7 @@ public abstract class TaskAbstract extends Observable implements Runnable {
      * Возобновление таска. По Факту создастся новый поток
      */
     public void resume() {
-        createTreadTask();
+        resumeThread();
     }
 
     /**
@@ -107,6 +115,7 @@ public abstract class TaskAbstract extends Observable implements Runnable {
      */
 
     public void createTreadTask() {
+
         if (taskStatus.getStatus() != TaskStatus.STATUS_WORKING)
             try {
                 thread = new Thread(this);
@@ -126,7 +135,43 @@ public abstract class TaskAbstract extends Observable implements Runnable {
      */
     @Override
     public final void run() {
+        currentlyStarted = true;
         onPostExecute(heavyTask());
+        currentlyStarted = false;
+    }
+
+    /**
+     * Обязательно вызывать перед каждой итеррацией в тяжелом таске, иначе пауза не отработает
+     */
+
+    protected void checkForPaused() {
+        synchronized (GUI_INITIALIZATION_MONITOR) {
+            while (pauseThreadFlag) {
+                try {
+                    GUI_INITIALIZATION_MONITOR.wait();
+                } catch (Exception e) {
+                }
+            }
+        }
+    }
+
+    private void pauseThread() throws InterruptedException {
+        pauseThreadFlag = true;
+    }
+
+    private void resumeThread() {
+        synchronized (GUI_INITIALIZATION_MONITOR) {
+            pauseThreadFlag = false;
+            GUI_INITIALIZATION_MONITOR.notify();
+        }
+    }
+
+    public boolean isCurrentlyStarted() {
+        return currentlyStarted;
+    }
+
+    public void setCurrentlyStarted(boolean currentlyStarted) {
+        this.currentlyStarted = currentlyStarted;
     }
 }
 

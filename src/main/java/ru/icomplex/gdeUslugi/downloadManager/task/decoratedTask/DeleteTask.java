@@ -35,6 +35,7 @@ public class DeleteTask extends DecoratedTaskAbstract {
         if (path.exists()) {
             File[] files = path.listFiles();
             for (File file : files) {
+                checkForPaused();
                 if (file.isDirectory()) {
                     deleteDirectory(file);
                 } else {
