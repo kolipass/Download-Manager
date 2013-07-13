@@ -6,11 +6,11 @@ package ru.icomplex.gdeUslugi.downloadManager.manager;
  */
 public class StringResourceManager {
     public String getParseUrlError() {
-        return "Could not be parsed as a URL:";
+        return "Не может быть разобрано как адрес:";
     }
 
     public String getErrorOccurs() {
-        return "error occurs while opening the connection.";
+        return "ошибка возникает при открытии соединения.";
     }
 
     public String getErrorResponse() {
