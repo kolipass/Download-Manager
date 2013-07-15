@@ -1,8 +1,9 @@
 package ru.icomplex.gdeUslugi.downloadManager.task;
 
 import ru.icomplex.gdeUslugi.downloadManager.manager.StringResourceManager;
-import ru.icomplex.gdeUslugi.downloadManager.task.decoratedTask.*;
+import ru.icomplex.gdeUslugi.downloadManager.task.decoratedTask.DecoratedTaskAbstract;
 import ru.icomplex.gdeUslugi.downloadManager.task.decoratedTask.DeleteTask;
+import ru.icomplex.gdeUslugi.downloadManager.task.decoratedTask.DownloadTask;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,8 +14,8 @@ import java.util.Map;
  * Time: 11:06
  */
 public class TaskBuilder {
-    public static TaskAbstract downloadUnzip(Map<String, Object> params) {
-        TaskAbstract taskAbstract = null;
+    public static DecoratedTaskAbstract downloadUnzip(Map<String, Object> params) {
+        DecoratedTaskAbstract taskAbstract = null;
 
         String url = (String) params.get("url");
         String path = (String) params.get("path");
@@ -44,7 +45,7 @@ public class TaskBuilder {
 
     public static Map<String, Object> getParams(StringResourceManager resourceManager, String tag, String path, String url, String md5,
                                                 Long size, String unpackingCatalog, Boolean deleteAfter) {
-        Map<String, Object> params = new HashMap<>();
+        Map<String, Object> params = new HashMap<String, Object>();
 
         params.put("stringResourceManager", resourceManager);
         params.put("url", url);

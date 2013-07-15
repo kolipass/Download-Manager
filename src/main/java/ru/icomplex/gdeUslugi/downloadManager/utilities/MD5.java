@@ -6,7 +6,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 
-public  final class MD5 {
+public final class MD5 {
     private final static char[] hexDigits = "0123456789abcdef".toCharArray();
 
     public static String Hashing(InputStream is) throws IOException,

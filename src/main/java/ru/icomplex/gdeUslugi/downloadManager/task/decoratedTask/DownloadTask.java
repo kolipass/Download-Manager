@@ -150,7 +150,7 @@ public class DownloadTask extends DecoratedTaskAbstract {
             }
         } catch (IOException e) {
             taskStatus.setStatus(STATUS_ERROR);
-            taskStatus.setMessage(resourceManager.getErrorOccurse());
+            taskStatus.setMessage(resourceManager.getErrorOccurs());
             e.printStackTrace();
             return taskStatus;
         }
@@ -187,7 +187,7 @@ public class DownloadTask extends DecoratedTaskAbstract {
             stream = connection.getInputStream();
         } catch (IOException e) {
             taskStatus.setStatus(STATUS_ERROR);
-            taskStatus.setMessage(resourceManager.getErrorOccurse());
+            taskStatus.setMessage(resourceManager.getErrorOccurs());
             e.printStackTrace();
             return taskStatus;
         }
@@ -256,7 +256,7 @@ public class DownloadTask extends DecoratedTaskAbstract {
 
         } catch (IOException e) {
             taskStatus.setStatus(STATUS_ERROR);
-            taskStatus.setMessage(resourceManager.getErrorOccurse());
+            taskStatus.setMessage(resourceManager.getErrorOccurs());
             e.printStackTrace();
             return taskStatus;
         } catch (NoSuchAlgorithmException e) {

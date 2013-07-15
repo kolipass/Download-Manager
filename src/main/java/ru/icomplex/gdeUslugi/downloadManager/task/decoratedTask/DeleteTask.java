@@ -95,6 +95,8 @@ public class DeleteTask extends DecoratedTaskAbstract {
             } catch (Exception e) {
                 taskStatus.setMessage(resourceManager.getErrorDelete());
             }
+        } else {
+            taskStatus.setStatus(TaskStatus.STATUS_FINISH);
         }
         return taskStatus;
     }

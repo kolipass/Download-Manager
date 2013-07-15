@@ -2,13 +2,12 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>ru.icomplex.gdeUslugi</groupId>
+    <groupId>ru.icomplex.java</groupId>
     <version>1.0-SNAPSHOT</version>
     <artifactId>Download-Manager</artifactId>
     <packaging>jar</packaging>
 
-    <name>Download-Manager</name>
-    <url>http://maven.apache.org</url>
+    <name>download-manager-library</name>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
@@ -22,16 +21,44 @@
         </dependency>
     </dependencies>
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.5.1</version>
+                <version>3.1</version>
                 <configuration>
-                    <source>1.7</source>
+                    <source>1.6</source>
                     <target>1.7</target>
                 </configuration>
             </plugin>
+            <!--<plugin>-->
+            <!--<groupId>org.codehaus.mojo</groupId>-->
+            <!--<artifactId>build-helper-maven-plugin</artifactId>-->
+            <!--<version>1.8</version>-->
+            <!--<executions>-->
+            <!--<execution>-->
+            <!--<id>attach-artifacts</id>-->
+            <!--<phase>package</phase>-->
+            <!--<goals>-->
+            <!--<goal>attach-artifact</goal>-->
+            <!--</goals>-->
+            <!--<configuration>-->
+            <!--<artifacts>-->
+            <!--<artifact>-->
+            <!--<file>${basedir}/bin/classes.jar</file>-->
+            <!--<type>jar</type>-->
+            <!--</artifact>-->
+            <!--</artifacts>-->
+            <!--</configuration>-->
+            <!--</execution>-->
+            <!--</executions>-->
+            <!--</plugin>-->
         </plugins>
     </build>
 </project>

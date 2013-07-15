@@ -20,7 +20,7 @@ public class TaskManager extends Observable implements Observer {
     Map<String, TaskAbstract> taskMap;
 
     private TaskManager() {
-        this.taskMap = new HashMap<>();
+        this.taskMap = new HashMap<String, TaskAbstract>();
     }
 
     public static TaskManager getInstance() {

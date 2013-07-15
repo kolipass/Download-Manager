@@ -23,6 +23,10 @@ public abstract class DecoratedTaskAbstract extends TaskAbstract implements Obse
         taskStatus.setLevel(taskLevel());
     }
 
+    public void setPreExecutableTask(TaskAbstract preExecutableTask) {
+        this.preExecutableTask = preExecutableTask;
+    }
+
     /**
      * Тут будет выполняться задача пеализующего класса
      *

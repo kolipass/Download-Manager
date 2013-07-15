@@ -148,7 +148,7 @@ public class DownloadFileTask extends TaskAbstract {
             }
         } catch (IOException e) {
             taskStatus.setStatus(STATUS_ERROR);
-            taskStatus.setMessage(resourceManager.getErrorOccurse());
+            taskStatus.setMessage(resourceManager.getErrorOccurs());
             e.printStackTrace();
             return taskStatus;
         }
@@ -185,7 +185,7 @@ public class DownloadFileTask extends TaskAbstract {
             stream = connection.getInputStream();
         } catch (IOException e) {
             taskStatus.setStatus(STATUS_ERROR);
-            taskStatus.setMessage(resourceManager.getErrorOccurse());
+            taskStatus.setMessage(resourceManager.getErrorOccurs());
             e.printStackTrace();
             return taskStatus;
         }
@@ -253,7 +253,7 @@ public class DownloadFileTask extends TaskAbstract {
 
         } catch (IOException e) {
             taskStatus.setStatus(STATUS_ERROR);
-            taskStatus.setMessage(resourceManager.getErrorOccurse());
+            taskStatus.setMessage(resourceManager.getErrorOccurs());
             e.printStackTrace();
             return taskStatus;
         } catch (NoSuchAlgorithmException e) {
